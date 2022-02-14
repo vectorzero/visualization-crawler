@@ -1,0 +1,11 @@
+.step-wrap {
+  padding: 20px 0;
+}
+
+.step-item {
+  margin: 10px 0;
+}
+
+.step-item input {
+  margin: 0 10px;
+}
