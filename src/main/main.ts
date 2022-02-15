@@ -12,8 +12,9 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import dayjs from 'dayjs';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import { resolveHtmlPath, getRandom } from './util';
 
 const puppeteer = require('puppeteer-core');
 
@@ -34,7 +35,6 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('crawler', async (event, arg) => {
-  console.log(arg);
   const browser = await puppeteer.launch({
     executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
     headless: false,
@@ -47,19 +47,60 @@ ipcMain.on('crawler', async (event, arg) => {
   async function asyncForEach(array, callback) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < array.length; index++) {
-      // eslint-disable-next-line no-await-in-loop
-      await callback(array[index], index, array);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await callback(array[index], index, array);
+      } catch (e) {
+        console.log(e);
+        const timeStr = getRandom(16);
+        const now = dayjs().format('MM-DD HH:mm:ss');
+        event.reply('crawler', {
+          type: 'error',
+          msg: e.message,
+          id: timeStr,
+          date: now,
+        });
+      }
     }
   }
   if (arg && arg.length) {
     asyncForEach(arg, async (item) => {
+      const timeStr = getRandom(16);
+      const now = dayjs().format('MM-DD HH:mm:ss');
+      if (item.type !== 'jump') {
+        await page.waitForSelector(item.target);
+      }
       if (item.type === 'jump') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【跳转】${item.target}`,
+          id: timeStr,
+          date: now,
+        });
         await page.goto(item.target);
       } else if (item.type === 'click') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【单击】${item.target}`,
+          id: timeStr,
+          date: now,
+        });
         await page.click(item.target);
       } else if (item.type === 'dbclick') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【双击】${item.target}`,
+          id: timeStr,
+          date: now,
+        });
         await page.click(item.target, { clickCount: 2 });
       } else if (item.type === 'input') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【输入】${item.target}`,
+          id: timeStr,
+          date: now,
+        });
         await page.type(item.target, item.value);
       }
     });

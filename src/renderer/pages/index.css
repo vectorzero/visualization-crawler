@@ -1,11 +1,36 @@
 .step-wrap {
-  padding: 20px 0;
-}
-
-.step-item {
   margin: 10px 0;
 }
 
-.step-item input {
-  margin: 0 10px;
+.step-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px dotted #ccc;
+}
+
+.step-item>input, .step-item>button {
+  margin-left: 10px;
+}
+
+.log-wrap {
+  overflow-y: auto;
+  height: 200px;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+.log-item {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.text-date {
+  margin-right: 5px;
+  color: green;
+  font-weight: bold;
+}
+
+.text-warn {
+  color: red;
 }

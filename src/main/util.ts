@@ -16,3 +16,9 @@ if (process.env.NODE_ENV === 'development') {
     return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}`;
   };
 }
+
+export const getRandom = (num: number) => {
+  return Math.floor(
+    (Math.random() + Math.floor(Math.random() * 9 + 1)) * 10 ** (num - 1)
+  );
+};

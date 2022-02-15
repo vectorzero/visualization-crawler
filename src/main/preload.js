@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('crawler', obj);
     },
     on(channel, func) {
-      const validChannels = ['ipc-example'];
+      const validChannels = ['ipc-example', 'crawler'];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));
