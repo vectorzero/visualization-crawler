@@ -69,8 +69,33 @@ ipcMain.on('crawler', async (event, arg) => {
       const now = dayjs().format('MM-DD HH:mm:ss');
       if (item.type !== 'jump') {
         await page.waitForSelector(item.target);
-      }
-      if (item.type === 'jump') {
+        const ele = await page.$(item.target);
+        if (item.type === 'click') {
+          event.reply('crawler', {
+            type: 'info',
+            msg: `【单击】${item.target}`,
+            id: timeStr,
+            date: now,
+          });
+          await ele.click();
+        } else if (item.type === 'dbclick') {
+          event.reply('crawler', {
+            type: 'info',
+            msg: `【双击】${item.target}`,
+            id: timeStr,
+            date: now,
+          });
+          await ele.click({ clickCount: 2 });
+        } else if (item.type === 'input') {
+          event.reply('crawler', {
+            type: 'info',
+            msg: `【输入】${item.target} -> ${item.value}`,
+            id: timeStr,
+            date: now,
+          });
+          await ele.type(item.value);
+        }
+      } else {
         event.reply('crawler', {
           type: 'info',
           msg: `【跳转】${item.target}`,
@@ -78,30 +103,6 @@ ipcMain.on('crawler', async (event, arg) => {
           date: now,
         });
         await page.goto(item.target);
-      } else if (item.type === 'click') {
-        event.reply('crawler', {
-          type: 'info',
-          msg: `【单击】${item.target}`,
-          id: timeStr,
-          date: now,
-        });
-        await page.click(item.target);
-      } else if (item.type === 'dbclick') {
-        event.reply('crawler', {
-          type: 'info',
-          msg: `【双击】${item.target}`,
-          id: timeStr,
-          date: now,
-        });
-        await page.click(item.target, { clickCount: 2 });
-      } else if (item.type === 'input') {
-        event.reply('crawler', {
-          type: 'info',
-          msg: `【输入】${item.target}`,
-          id: timeStr,
-          date: now,
-        });
-        await page.type(item.target, item.value);
       }
     });
   }

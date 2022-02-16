@@ -63,9 +63,7 @@ export default function Index() {
 
   const scrollToBottom = () => {
     if (logRef && logRef.current) {
-      setTimeout(() => {
-        logRef.current.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+      logRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -75,14 +73,12 @@ export default function Index() {
       setList(JSON.parse(str));
     }
     ipcRenderer.on('crawler', (arg) => {
-      const newLogs = [];
+      let newLogs = [];
       logs.push(arg);
-      console.log(logs);
-      logs.forEach((item) => {
-        if (item.id !== arg.id) {
-          newLogs.push(item);
-        }
-      });
+      newLogs = logs.filter(
+        (item, index, self) =>
+          self.findIndex((el) => el.id === item.id) === index
+      );
       setLogs(newLogs);
       scrollToBottom();
     });
@@ -98,6 +94,13 @@ export default function Index() {
         {list.map((item) => {
           return (
             <div className="step-item" key={item.id}>
+              <button
+                className="del-btn"
+                type="button"
+                onClick={() => handleDelete(item.id)}
+              >
+                删除
+              </button>
               <select
                 value={item.type}
                 onChange={(e) => changeSelect(e, item.id)}
@@ -110,11 +113,22 @@ export default function Index() {
                   );
                 })}
               </select>
-              <input
-                value={item.target}
-                onChange={(e) => changeInput(e, item.id, 'target')}
-                placeholder="请输入目标"
-              />
+              {item.type === 'jump' ? (
+                <input
+                  value={item.target}
+                  onChange={(e) => changeInput(e, item.id, 'target')}
+                  placeholder="请输入网址"
+                />
+              ) : (
+                <>
+                  <input
+                    value={item.target}
+                    onChange={(e) => changeInput(e, item.id, 'target')}
+                    placeholder="请输入selector"
+                  />
+                  <button type="button">?</button>
+                </>
+              )}
               {item.type === 'input' && (
                 <input
                   value={item.value}
@@ -122,9 +136,6 @@ export default function Index() {
                   placeholder="请输入填写的文本"
                 />
               )}
-              <button type="button" onClick={() => handleDelete(item.id)}>
-                删除
-              </button>
             </div>
           );
         })}
