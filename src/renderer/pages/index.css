@@ -1,5 +1,9 @@
+.page-wrap {
+  padding: 10px;
+}
+
 .step-wrap {
-  width: 550px;
+  width: 600px;
   margin: 10px 0;
 }
 
@@ -12,21 +16,23 @@
   border: 1px dotted #ccc;
 }
 
-.step-item>input, .step-item>select {
+.step-item>.input-item {
+  width: 200px;
   margin-left: 10px;
 }
 
 .step-item>.del-btn {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 5px;
+  top: 5px;
 }
 
 .log-wrap {
   overflow-y: auto;
+  width: 600px;
   height: 200px;
-  width: 100%;
   margin: 10px 0;
+  padding: 10px 0;
   font-size: 12px;
 }
 

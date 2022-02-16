@@ -9,11 +9,11 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import dayjs from 'dayjs';
-import MenuBuilder from './menu';
+// import MenuBuilder from './menu';
 import { resolveHtmlPath, getRandom } from './util';
 
 const puppeteer = require('puppeteer-core');
@@ -134,6 +134,7 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
+  Menu.setApplicationMenu(null);
   if (isDevelopment) {
     await installExtensions();
   }
@@ -148,8 +149,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 750,
+    height: 750,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -173,8 +174,8 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  // const menuBuilder = new MenuBuilder(mainWindow);
+  // menuBuilder.buildMenu();
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

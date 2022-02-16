@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { Button, Input, Tooltip, Image, Select, Modal } from 'antd';
+import { InfoCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import step1 from '../assets/tips/step1.png';
+import step2 from '../assets/tips/step2.png';
 import './index.css';
 
 const { ipcRenderer } = window.electron;
+const { Option } = Select;
 
 export default function Index() {
   const [typeList] = useState([
@@ -25,8 +30,7 @@ export default function Index() {
     setList(newArr);
   };
 
-  const changeSelect = (e, id) => {
-    const val = e.target.value;
+  const changeSelect = (val, id) => {
     list.forEach((item) => {
       if (item.id === id) {
         item.type = val;
@@ -67,6 +71,18 @@ export default function Index() {
     }
   };
 
+  const [modal, contextHolder] = Modal.useModal();
+
+  const tips = {
+    title: '获取selector',
+    content: (
+      <div className="tip-wrap">
+        <Image width={220} src={step1} />
+        <Image width={220} src={step2} />
+      </div>
+    ),
+  };
+
   useEffect(() => {
     const str = localStorage.getItem('list');
     if (str) {
@@ -86,51 +102,63 @@ export default function Index() {
   }, []);
 
   return (
-    <div>
-      <button type="button" onClick={handleAdd}>
+    <div className="page-wrap">
+      <Button type="primary" onClick={handleAdd}>
         新增步骤
-      </button>
+      </Button>
       <div className="step-wrap">
         {list.map((item) => {
           return (
             <div className="step-item" key={item.id}>
-              <button
-                className="del-btn"
-                type="button"
-                onClick={() => handleDelete(item.id)}
-              >
-                删除
-              </button>
-              <select
+              <Tooltip title="删除">
+                <Button
+                  className="del-btn"
+                  danger
+                  shape="circle"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDelete(item.id)}
+                />
+              </Tooltip>
+              <Select
                 value={item.type}
                 onChange={(e) => changeSelect(e, item.id)}
               >
                 {typeList.map((v) => {
                   return (
-                    <option value={v.value} key={v.value}>
+                    <Option value={v.value} key={v.value}>
                       {v.label}
-                    </option>
+                    </Option>
                   );
                 })}
-              </select>
+              </Select>
               {item.type === 'jump' ? (
-                <input
+                <Input
+                  className="input-item"
                   value={item.target}
                   onChange={(e) => changeInput(e, item.id, 'target')}
                   placeholder="请输入网址"
                 />
               ) : (
                 <>
-                  <input
+                  <Input
+                    className="input-item"
                     value={item.target}
                     onChange={(e) => changeInput(e, item.id, 'target')}
                     placeholder="请输入selector"
                   />
-                  <button type="button">?</button>
+                  <Tooltip title="点击查看如何获取selector">
+                    <Button
+                      icon={<InfoCircleOutlined />}
+                      onClick={() => {
+                        modal.info(tips);
+                      }}
+                    />
+                  </Tooltip>
                 </>
               )}
               {item.type === 'input' && (
-                <input
+                <Input
+                  className="input-item"
                   value={item.value}
                   onChange={(e) => changeInput(e, item.id, 'value')}
                   placeholder="请输入填写的文本"
@@ -141,9 +169,9 @@ export default function Index() {
         })}
       </div>
       {Boolean(list.length) && (
-        <button type="button" onClick={handleStart}>
+        <Button type="primary" onClick={handleStart}>
           执行
-        </button>
+        </Button>
       )}
       <div className="log-wrap" ref={logRef}>
         {logs.map((item) => {
@@ -157,6 +185,7 @@ export default function Index() {
           );
         })}
       </div>
+      {contextHolder}
     </div>
   );
 }
