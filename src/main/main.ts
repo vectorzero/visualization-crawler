@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import { resolveHtmlPath, getRandom } from './util';
 
 const puppeteer = require('puppeteer-core');
+const findChrome = require('./find_chrome');
 
 export default class AppUpdater {
   constructor() {
@@ -35,8 +36,10 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('crawler', async (event, arg) => {
+  const findChromePath = await findChrome({});
+  const { executablePath } = findChromePath;
   const browser = await puppeteer.launch({
-    executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    executablePath,
     headless: false,
     defaultViewport: {
       width: 0,
