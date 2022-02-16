@@ -90,7 +90,7 @@ export default function Index() {
     }
     ipcRenderer.on('crawler', (arg) => {
       let newLogs = [];
-      logs.push(arg);
+      logs.unshift(arg);
       newLogs = logs.filter(
         (item, index, self) =>
           self.findIndex((el) => el.id === item.id) === index

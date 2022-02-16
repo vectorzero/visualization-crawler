@@ -136,7 +136,7 @@ const installExtensions = async () => {
 const createWindow = async () => {
   Menu.setApplicationMenu(null);
   if (isDevelopment) {
-    await installExtensions();
+    // await installExtensions();
   }
 
   const RESOURCES_PATH = app.isPackaged
@@ -149,8 +149,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 750,
-    height: 750,
+    width: 650,
+    height: 650,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
