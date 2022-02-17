@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { Button, Input, Tooltip, Image, Select, Modal } from 'antd';
+import {
+  Button,
+  Input,
+  Tooltip,
+  Image,
+  Select,
+  Modal,
+  InputNumber,
+} from 'antd';
 import { InfoCircleOutlined, DeleteOutlined } from '@ant-design/icons';
 import step1 from '../assets/tips/step1.png';
 import step2 from '../assets/tips/step2.png';
+import keyboards from './keyboard';
 import './index.css';
 
 const { ipcRenderer } = window.electron;
@@ -15,15 +24,18 @@ export default function Index() {
     { label: '单击', value: 'click' },
     { label: '双击', value: 'dbclick' },
     { label: '输入', value: 'input' },
+    { label: '按键', value: 'keyboard' },
     { label: '运行js', value: 'js' },
+    { label: '等待', value: 'wait' },
+    { label: '刷新页面', value: 'reload' },
   ]);
+  const [pressTypes] = useState(['持续按着', '按一下', '释放按键']);
   const [list, setList] = useState([]);
   const [logs, setLogs] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const logRef = useRef(null);
 
-  const changeInput = (e, id, prop) => {
-    const val = e.target.value;
+  const changeVal = (val, id, prop) => {
     list.forEach((item) => {
       if (item.id === id) {
         item[prop] = val;
@@ -33,13 +45,19 @@ export default function Index() {
     setList(newArr);
   };
 
-  const changeSelect = (val, id) => {
+  const changeInput = (e, id, prop) => {
+    const val = e.target.value;
+    changeVal(val, id, prop);
+  };
+
+  const changeInputNumber = (val, id, prop) => {
+    changeVal(val, id, prop);
+  };
+
+  const changeSelect = (val, id, prop = 'type') => {
     list.forEach((item) => {
       if (item.id === id) {
-        item.type = val;
-        if (val !== 'input') {
-          item.value = '';
-        }
+        item[prop] = val;
       }
     });
     const newArr = [...list];
@@ -127,7 +145,7 @@ export default function Index() {
                   );
                 })}
               </Select>
-              {item.type === 'jump' && (
+              {['jump'].includes(item.type) && (
                 <Input
                   className="input-item"
                   value={item.target}
@@ -153,13 +171,64 @@ export default function Index() {
                   </Tooltip>
                 </>
               )}
-              {(item.type === 'input' || item.type === 'js') && (
+              {['input', 'js'].includes(item.type) && (
                 <Input
                   className="input-item"
                   value={item.value}
                   onChange={(e) => changeInput(e, item.id, 'value')}
-                  placeholder="请填写"
+                  placeholder="请填写值"
                 />
+              )}
+              {['wait'].includes(item.type) && (
+                <InputNumber
+                  className="input-item"
+                  value={item.value}
+                  onChange={(e) => changeInputNumber(e, item.id, 'value')}
+                  placeholder="请填写时间"
+                  addonAfter="ms"
+                />
+              )}
+              {['keyboard'].includes(item.type) && (
+                <>
+                  <Select
+                    className="select-item"
+                    showSearch
+                    placeholder="选择按压方式"
+                    optionFilterProp="children"
+                    value={item.target}
+                    onChange={(e) => changeSelect(e, item.id, 'target')}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {pressTypes.map((k) => (
+                      <Option value={k} key={k}>
+                        {k}
+                      </Option>
+                    ))}
+                  </Select>
+                  <Select
+                    className="select-item"
+                    showSearch
+                    placeholder="选择按键"
+                    optionFilterProp="children"
+                    value={item.value}
+                    onChange={(e) => changeSelect(e, item.id, 'value')}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {keyboards.map((k) => (
+                      <Option value={k} key={k}>
+                        {k}
+                      </Option>
+                    ))}
+                  </Select>
+                </>
               )}
             </div>
           );

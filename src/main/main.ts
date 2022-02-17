@@ -58,13 +58,12 @@ ipcMain.on('crawler', async (event, arg) => {
         // eslint-disable-next-line no-await-in-loop
         await callback(array[index], index, array);
       } catch (e) {
-        console.log(e);
-        const timeStr = getRandom(16);
+        const randomStr = getRandom(16);
         const now = dayjs().format('MM-DD HH:mm:ss');
         event.reply('crawler', {
           type: 'error',
-          msg: e.message,
-          id: timeStr,
+          msg: `【错误】${e.message}`,
+          id: randomStr,
           date: now,
         });
       }
@@ -72,63 +71,105 @@ ipcMain.on('crawler', async (event, arg) => {
   }
   if (arg && arg.length) {
     asyncForEach(arg, async (item) => {
-      const timeStr = getRandom(16);
+      const randomStr = getRandom(16);
       const now = dayjs().format('MM-DD HH:mm:ss');
-      if (item.type !== 'jump' && item.type !== 'js' && item.target) {
+      if (
+        item.type !== 'jump' &&
+        item.type !== 'js' &&
+        item.type !== 'keyboard' &&
+        item.target
+      ) {
         await page.waitForSelector(item.target);
         const ele = await page.$(item.target);
         if (item.type === 'exist') {
           event.reply('crawler', {
             type: 'info',
             msg: `【存在】${item.target}`,
-            id: timeStr,
+            id: randomStr,
             date: now,
           });
-        } else if (item.type === 'click') {
+        }
+        if (item.type === 'click') {
           event.reply('crawler', {
             type: 'info',
             msg: `【单击】${item.target}`,
-            id: timeStr,
+            id: randomStr,
             date: now,
           });
           await ele.click();
-        } else if (item.type === 'dbclick') {
+        }
+        if (item.type === 'dbclick') {
           event.reply('crawler', {
             type: 'info',
             msg: `【双击】${item.target}`,
-            id: timeStr,
+            id: randomStr,
             date: now,
           });
           await ele.click({ clickCount: 2 });
-        } else if (item.type === 'input') {
+        }
+        if (item.type === 'input') {
           event.reply('crawler', {
             type: 'info',
             msg: `【输入】${item.target} -> ${item.value}`,
-            id: timeStr,
+            id: randomStr,
             date: now,
           });
           await ele.type(item.value);
         }
-      } else if (item.type === 'jump' && item.target) {
+      }
+      if (item.type === 'keyboard' && item.target) {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【按键】${item.target}${item.value}`,
+          id: randomStr,
+          date: now,
+        });
+        const keyMap = {
+          持续按着: 'down',
+          按一下: 'press',
+          释放按键: 'up',
+        };
+        await page.keyboard[keyMap[item.target]](item.value);
+      }
+      if (item.type === 'jump' && item.target) {
         event.reply('crawler', {
           type: 'info',
           msg: `【跳转】${item.target}`,
-          id: timeStr,
+          id: randomStr,
           date: now,
         });
-        await page.goto(item.target);
-      } else if (item.type === 'js' && item.value) {
+        await page.goto(item.target, { waitUntil: 'networkidle2' });
+      }
+      if (item.type === 'js' && item.value) {
         const jsCode = item.value;
         event.reply('crawler', {
           type: 'info',
           msg: `【运行js】${jsCode}`,
-          id: timeStr,
+          id: randomStr,
           date: now,
         });
         await page.evaluate((x) => {
           // eslint-disable-next-line no-eval
           eval(x);
         }, jsCode);
+      }
+      if (item.type === 'wait' && item.value) {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【等待】${item.value}ms`,
+          id: randomStr,
+          date: now,
+        });
+        await page.waitForTimeout(item.value);
+      }
+      if (item.type === 'reload') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【刷新页面】`,
+          id: randomStr,
+          date: now,
+        });
+        await page.reload();
       }
     });
   }
@@ -175,8 +216,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 670,
-    height: 670,
+    width: 700,
+    height: 700,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

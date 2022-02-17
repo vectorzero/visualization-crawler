@@ -29,6 +29,11 @@
   color: #666;
 }
 
+.select-item {
+  margin-left: 10px !important;
+  width: 100px;
+}
+
 .log-wrap {
   overflow-y: auto;
   width: 600px;
