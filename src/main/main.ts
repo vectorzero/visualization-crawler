@@ -38,14 +38,18 @@ ipcMain.on('ipc-example', async (event, arg) => {
 ipcMain.on('crawler', async (event, arg) => {
   const findChromePath = await findChrome({});
   const { executablePath } = findChromePath;
-  const browser = await puppeteer.launch({
+  const launchConfig = {
     executablePath,
     headless: false,
+    openInExistingWindow: true,
     defaultViewport: {
       width: 0,
       height: 0,
     },
-  });
+  };
+  const browser = await puppeteer.launch(launchConfig);
+  // const browserWSEndpoint = browser.wsEndpoint();
+  // browser = await puppeteer.connect({ browserWSEndpoint });
   const page = await browser.newPage();
   async function asyncForEach(array, callback) {
     // eslint-disable-next-line no-plusplus
@@ -70,10 +74,17 @@ ipcMain.on('crawler', async (event, arg) => {
     asyncForEach(arg, async (item) => {
       const timeStr = getRandom(16);
       const now = dayjs().format('MM-DD HH:mm:ss');
-      if (item.type !== 'jump') {
+      if (item.type !== 'jump' && item.type !== 'js' && item.target) {
         await page.waitForSelector(item.target);
         const ele = await page.$(item.target);
-        if (item.type === 'click') {
+        if (item.type === 'exist') {
+          event.reply('crawler', {
+            type: 'info',
+            msg: `【存在】${item.target}`,
+            id: timeStr,
+            date: now,
+          });
+        } else if (item.type === 'click') {
           event.reply('crawler', {
             type: 'info',
             msg: `【单击】${item.target}`,
@@ -98,7 +109,7 @@ ipcMain.on('crawler', async (event, arg) => {
           });
           await ele.type(item.value);
         }
-      } else {
+      } else if (item.type === 'jump' && item.target) {
         event.reply('crawler', {
           type: 'info',
           msg: `【跳转】${item.target}`,
@@ -106,6 +117,18 @@ ipcMain.on('crawler', async (event, arg) => {
           date: now,
         });
         await page.goto(item.target);
+      } else if (item.type === 'js' && item.value) {
+        const jsCode = item.value;
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【运行js】${jsCode}`,
+          id: timeStr,
+          date: now,
+        });
+        await page.evaluate((x) => {
+          // eslint-disable-next-line no-eval
+          eval(x);
+        }, jsCode);
       }
     });
   }
@@ -152,8 +175,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 650,
-    height: 650,
+    width: 670,
+    height: 670,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

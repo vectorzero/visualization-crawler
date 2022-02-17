@@ -11,12 +11,15 @@ const { Option } = Select;
 export default function Index() {
   const [typeList] = useState([
     { label: '跳转', value: 'jump' },
+    { label: '存在', value: 'exist' },
     { label: '单击', value: 'click' },
     { label: '双击', value: 'dbclick' },
     { label: '输入', value: 'input' },
+    { label: '运行js', value: 'js' },
   ]);
   const [list, setList] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const logRef = useRef(null);
 
   const changeInput = (e, id, prop) => {
@@ -71,16 +74,12 @@ export default function Index() {
     }
   };
 
-  const [modal, contextHolder] = Modal.useModal();
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
 
-  const tips = {
-    title: '获取selector',
-    content: (
-      <div className="tip-wrap">
-        <Image width={220} src={step1} />
-        <Image width={220} src={step2} />
-      </div>
-    ),
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   useEffect(() => {
@@ -111,11 +110,8 @@ export default function Index() {
           return (
             <div className="step-item" key={item.id}>
               <Tooltip title="删除">
-                <Button
+                <DeleteOutlined
                   className="del-btn"
-                  danger
-                  shape="circle"
-                  icon={<DeleteOutlined />}
                   onClick={() => handleDelete(item.id)}
                 />
               </Tooltip>
@@ -131,14 +127,15 @@ export default function Index() {
                   );
                 })}
               </Select>
-              {item.type === 'jump' ? (
+              {item.type === 'jump' && (
                 <Input
                   className="input-item"
                   value={item.target}
                   onChange={(e) => changeInput(e, item.id, 'target')}
                   placeholder="请输入网址"
                 />
-              ) : (
+              )}
+              {['click', 'dbclick', 'input', 'exist'].includes(item.type) && (
                 <>
                   <Input
                     className="input-item"
@@ -150,18 +147,18 @@ export default function Index() {
                     <Button
                       icon={<InfoCircleOutlined />}
                       onClick={() => {
-                        modal.info(tips);
+                        setIsModalVisible(true);
                       }}
                     />
                   </Tooltip>
                 </>
               )}
-              {item.type === 'input' && (
+              {(item.type === 'input' || item.type === 'js') && (
                 <Input
                   className="input-item"
                   value={item.value}
                   onChange={(e) => changeInput(e, item.id, 'value')}
-                  placeholder="请输入填写的文本"
+                  placeholder="请填写"
                 />
               )}
             </div>
@@ -185,7 +182,18 @@ export default function Index() {
           );
         })}
       </div>
-      {contextHolder}
+      <Modal
+        title="获取selector"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <div className="tip-wrap">
+          <Image width={220} src={step1} />
+          <Image width={220} src={step2} />
+        </div>
+      </Modal>
     </div>
   );
 }
