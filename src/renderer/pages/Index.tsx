@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Input,
@@ -8,7 +8,11 @@ import {
   Modal,
   InputNumber,
 } from 'antd';
-import { InfoCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  InfoCircleOutlined,
+  DeleteOutlined,
+  CloseCircleOutlined,
+} from '@ant-design/icons';
 import step1 from '../assets/tips/step1.png';
 import step2 from '../assets/tips/step2.png';
 import keyboards from './keyboard';
@@ -33,7 +37,7 @@ export default function Index() {
   const [list, setList] = useState([]);
   const [logs, setLogs] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const logRef = useRef(null);
+  const [isLogVisible, setIsLogVisible] = useState(false);
 
   const changeVal = (val, id, prop) => {
     list.forEach((item) => {
@@ -66,6 +70,7 @@ export default function Index() {
 
   const handleStart = () => {
     ipcRenderer.crawler(list);
+    setIsLogVisible(true);
     localStorage.setItem('list', JSON.stringify(list));
   };
 
@@ -86,18 +91,16 @@ export default function Index() {
     localStorage.setItem('list', JSON.stringify(newList));
   };
 
-  const scrollToBottom = () => {
-    if (logRef && logRef.current) {
-      logRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const handleOk = () => {
     setIsModalVisible(false);
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handleLogClose = () => {
+    setIsLogVisible(false);
   };
 
   useEffect(() => {
@@ -113,7 +116,6 @@ export default function Index() {
           self.findIndex((el) => el.id === item.id) === index
       );
       setLogs(newLogs);
-      scrollToBottom();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -235,22 +237,24 @@ export default function Index() {
         })}
       </div>
       {Boolean(list.length) && (
-        <Button type="primary" onClick={handleStart}>
-          执行
-        </Button>
+        <>
+          <Button
+            style={{ marginRight: '10px' }}
+            type="primary"
+            onClick={handleStart}
+          >
+            执行
+          </Button>
+          <Button
+            onClick={() => {
+              setIsLogVisible(true);
+            }}
+          >
+            日志
+          </Button>
+        </>
       )}
-      <div className="log-wrap" ref={logRef}>
-        {logs.map((item) => {
-          return (
-            <div className="log-item" key={item.id}>
-              <span className="text-date">{item.date}</span>
-              <span className={`${item.type === 'error' ? 'text-warn' : ''}`}>
-                {item.msg}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+
       <Modal
         title="获取selector"
         visible={isModalVisible}
@@ -263,6 +267,30 @@ export default function Index() {
           <Image width={220} src={step2} />
         </div>
       </Modal>
+      {isLogVisible && (
+        <div className="log-wrap">
+          <div className="log-title">
+            <CloseCircleOutlined
+              className="close-btn"
+              onClick={handleLogClose}
+            />
+          </div>
+          <div className="log-content">
+            {logs.map((item) => {
+              return (
+                <div className="log-item" key={item.id}>
+                  <span className="text-date">{item.date}</span>
+                  <span
+                    className={`${item.type === 'error' ? 'text-warn' : ''}`}
+                  >
+                    {item.msg}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

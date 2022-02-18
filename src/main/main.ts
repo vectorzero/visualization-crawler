@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, Menu, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import dayjs from 'dayjs';
@@ -36,6 +36,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('crawler', async (event, arg) => {
+  console.log(screen.getCursorScreenPoint());
   const findChromePath = await findChrome({});
   const { executablePath } = findChromePath;
   const launchConfig = {
@@ -46,6 +47,8 @@ ipcMain.on('crawler', async (event, arg) => {
       width: 0,
       height: 0,
     },
+    ignoreDefaultArgs: ['--enable-automation'], // 去掉左上角 Chrome 正受自动软件控制
+    args: ['--start-maximized'],
   };
   const browser = await puppeteer.launch(launchConfig);
   // const browserWSEndpoint = browser.wsEndpoint();

@@ -1,4 +1,33 @@
+/* ::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: #ddd;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #999;
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 111, 111, 0.4);
+} */
+
 .page-wrap {
+  position: relative;
+  height: 100vh;
   padding: 10px;
 }
 
@@ -35,25 +64,49 @@
 }
 
 .log-wrap {
-  overflow-y: auto;
-  width: 600px;
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  margin-left: -200px;
+  display: flex;
+  flex-direction: column;
+  width: 400px;
   height: 200px;
-  margin: 10px 0;
-  padding: 10px 0;
+  padding: 10px 5px 10px 10px;
+  background: #052e52;
+  box-shadow: 0 20px 68px rgb(0 0 0 / 55%);
   font-size: 12px;
+}
+
+.log-title {
+  position: relative;
+  width: 100%;
+  height: 20px;
+}
+
+.log-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #FF5F56 !important;
 }
 
 .log-item {
   display: block;
   margin-bottom: 5px;
+  color: white;
 }
 
 .text-date {
   margin-right: 5px;
-  color: green;
-  font-weight: bold;
+  color: #ffee80;
 }
 
 .text-warn {
-  color: red;
+  color: #FF5F56;
 }
