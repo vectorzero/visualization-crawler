@@ -36,6 +36,7 @@ export default function Index() {
   const [pressTypes] = useState(['持续按着', '按一下', '释放按键']);
   const [list, setList] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [loopTimes, setLoopTimes] = useState(1)
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLogVisible, setIsLogVisible] = useState(false);
 
@@ -69,9 +70,10 @@ export default function Index() {
   };
 
   const handleStart = () => {
-    ipcRenderer.crawler(list);
+    ipcRenderer.crawler({times: loopTimes, list});
     setIsLogVisible(true);
     localStorage.setItem('list', JSON.stringify(list));
+    localStorage.setItem('loopTimes', loopTimes.toString())
   };
 
   const handleAdd = () => {
@@ -103,7 +105,18 @@ export default function Index() {
     setIsLogVisible(false);
   };
 
+  const toggleLogVisible = () => {
+    const isVisible = !isLogVisible
+    setIsLogVisible(isVisible);
+  };
+
+  const changeTimes = val => {
+    setLoopTimes(val)
+  };
+
   useEffect(() => {
+    const times = localStorage.getItem('loopTimes')
+    setLoopTimes(Number(times))
     const str = localStorage.getItem('list');
     if (str) {
       setList(JSON.parse(str));
@@ -237,7 +250,11 @@ export default function Index() {
         })}
       </div>
       {Boolean(list.length) && (
-        <>
+        <div className='operate-item'>
+          <div className='input-time'>
+            <span>循环次数</span>
+            <InputNumber className='num-item' onChange={(e) => changeTimes(e)} value={loopTimes}></InputNumber>
+          </div>
           <Button
             style={{ marginRight: '10px' }}
             type="primary"
@@ -247,12 +264,12 @@ export default function Index() {
           </Button>
           <Button
             onClick={() => {
-              setIsLogVisible(true);
+              toggleLogVisible();
             }}
           >
-            日志
+            { isLogVisible ? '关闭' : '打开' }日志
           </Button>
-        </>
+        </div>
       )}
 
       <Modal

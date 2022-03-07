@@ -54,13 +54,13 @@ ipcMain.on('crawler', async (event, arg) => {
   // const browserWSEndpoint = browser.wsEndpoint();
   // browser = await puppeteer.connect({ browserWSEndpoint });
   const page = await browser.newPage();
-  async function asyncForEach(array, callback) {
+  async function asyncForEach(array: string | any[], callback: { (item: any): Promise<void>; (arg0: any, arg1: number, arg2: any): any; }) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < array.length; index++) {
       try {
         // eslint-disable-next-line no-await-in-loop
         await callback(array[index], index, array);
-      } catch (e) {
+      } catch (e:any) {
         const randomStr = getRandom(16);
         const now = dayjs().format('MM-DD HH:mm:ss');
         event.reply('crawler', {
@@ -72,8 +72,12 @@ ipcMain.on('crawler', async (event, arg) => {
       }
     }
   }
-  if (arg && arg.length) {
-    asyncForEach(arg, async (item) => {
+  if (arg && arg.list && arg.list.length && arg.times) {
+    let arr: object[] = []
+    for(let i = 0; i < arg.times; i++) {
+      arr = [...arr,...arg.list]
+    }
+    asyncForEach(arr, async (item:any) => {
       const randomStr = getRandom(16);
       const now = dayjs().format('MM-DD HH:mm:ss');
       if (
@@ -151,7 +155,7 @@ ipcMain.on('crawler', async (event, arg) => {
           id: randomStr,
           date: now,
         });
-        await page.evaluate((x) => {
+        await page.evaluate((x:any) => {
           // eslint-disable-next-line no-eval
           eval(x);
         }, jsCode);
