@@ -36,7 +36,7 @@ export default function Index() {
   const [pressTypes] = useState(['持续按着', '按一下', '释放按键']);
   const [list, setList] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [loopTimes, setLoopTimes] = useState(1)
+  const [loopTimes, setLoopTimes] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLogVisible, setIsLogVisible] = useState(false);
 
@@ -70,10 +70,10 @@ export default function Index() {
   };
 
   const handleStart = () => {
-    ipcRenderer.crawler({times: loopTimes, list});
+    ipcRenderer.crawler({ times: loopTimes, list });
     setIsLogVisible(true);
     localStorage.setItem('list', JSON.stringify(list));
-    localStorage.setItem('loopTimes', loopTimes.toString())
+    localStorage.setItem('loopTimes', loopTimes.toString());
   };
 
   const handleAdd = () => {
@@ -106,17 +106,17 @@ export default function Index() {
   };
 
   const toggleLogVisible = () => {
-    const isVisible = !isLogVisible
+    const isVisible = !isLogVisible;
     setIsLogVisible(isVisible);
   };
 
-  const changeTimes = val => {
-    setLoopTimes(val)
+  const changeTimes = (val) => {
+    setLoopTimes(val);
   };
 
   useEffect(() => {
-    const times = localStorage.getItem('loopTimes')
-    setLoopTimes(Number(times))
+    const times = localStorage.getItem('loopTimes');
+    setLoopTimes(Number(times));
     const str = localStorage.getItem('list');
     if (str) {
       setList(JSON.parse(str));
@@ -250,10 +250,14 @@ export default function Index() {
         })}
       </div>
       {Boolean(list.length) && (
-        <div className='operate-item'>
-          <div className='input-time'>
+        <div className="operate-item">
+          <div className="input-time">
             <span>循环次数</span>
-            <InputNumber className='num-item' onChange={(e) => changeTimes(e)} value={loopTimes}></InputNumber>
+            <InputNumber
+              className="num-item"
+              onChange={(e) => changeTimes(e)}
+              value={loopTimes}
+            />
           </div>
           <Button
             style={{ marginRight: '10px' }}
@@ -267,7 +271,7 @@ export default function Index() {
               toggleLogVisible();
             }}
           >
-            { isLogVisible ? '关闭' : '打开' }日志
+            {isLogVisible ? '关闭' : '打开'}日志
           </Button>
         </div>
       )}
