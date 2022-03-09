@@ -73,6 +73,13 @@ ipcMain.on('crawler', async (event, arg) => {
     }
   }
   if (arg && arg.list && arg.list.length && arg.times) {
+    const tempList = arg.list
+    tempList.forEach((item:any) => {
+      if (item.type === 'sLoop') {
+        // 
+      }
+    })
+    console.log(arg.list)
     let arr: object[] = []
     for(let i = 0; i < arg.times; i++) {
       arr = [...arr,...arg.list]

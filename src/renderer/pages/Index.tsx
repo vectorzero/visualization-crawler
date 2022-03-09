@@ -31,6 +31,8 @@ export default function Index() {
     { label: '按键', value: 'keyboard' },
     { label: '运行js', value: 'js' },
     { label: '等待', value: 'wait' },
+    { label: '开始循环', value: 'sLoop' },
+    { label: '结束循环', value: 'eLoop' },
     { label: '刷新页面', value: 'reload' },
   ]);
   const [pressTypes] = useState(['持续按着', '按一下', '释放按键']);
@@ -201,6 +203,15 @@ export default function Index() {
                   onChange={(e) => changeInputNumber(e, item.id, 'value')}
                   placeholder="请填写时间"
                   addonAfter="ms"
+                />
+              )}
+              {['sLoop'].includes(item.type) && (
+                <InputNumber
+                  className="input-item"
+                  value={item.value}
+                  onChange={(e) => changeInputNumber(e, item.id, 'value')}
+                  placeholder="请填写循环次数"
+                  addonAfter="次"
                 />
               )}
               {['keyboard'].includes(item.type) && (
