@@ -54,13 +54,19 @@ ipcMain.on('crawler', async (event, arg) => {
   // const browserWSEndpoint = browser.wsEndpoint();
   // browser = await puppeteer.connect({ browserWSEndpoint });
   const page = await browser.newPage();
-  async function asyncForEach(array: string | any[], callback: { (item: any): Promise<void>; (arg0: any, arg1: number, arg2: any): any; }) {
+  async function asyncForEach(
+    array: string | unknown[],
+    callback: {
+      (item: unknown): Promise<void>;
+      (arg0: unknown, arg1: number, arg2: unknown): unknown;
+    }
+  ) {
     // eslint-disable-next-line no-plusplus
     for (let index = 0; index < array.length; index++) {
       try {
         // eslint-disable-next-line no-await-in-loop
         await callback(array[index], index, array);
-      } catch (e:any) {
+      } catch (e: unknown) {
         const randomStr = getRandom(16);
         const now = dayjs().format('MM-DD HH:mm:ss');
         event.reply('crawler', {
@@ -73,18 +79,18 @@ ipcMain.on('crawler', async (event, arg) => {
     }
   }
   if (arg && arg.list && arg.list.length && arg.times) {
-    const tempList = arg.list
-    tempList.forEach((item:any) => {
+    const tempList = arg.list;
+    tempList.forEach((item: unknown) => {
       if (item.type === 'sLoop') {
-        // 
+        //
       }
-    })
-    console.log(arg.list)
-    let arr: object[] = []
-    for(let i = 0; i < arg.times; i++) {
-      arr = [...arr,...arg.list]
+    });
+    console.log(arg.list);
+    let arr: object[] = [];
+    for (let i = 0; i < arg.times; i += 1) {
+      arr = [...arr, ...arg.list];
     }
-    asyncForEach(arr, async (item:any) => {
+    asyncForEach(arr, async (item: unknown) => {
       const randomStr = getRandom(16);
       const now = dayjs().format('MM-DD HH:mm:ss');
       if (
@@ -162,7 +168,7 @@ ipcMain.on('crawler', async (event, arg) => {
           id: randomStr,
           date: now,
         });
-        await page.evaluate((x:any) => {
+        await page.evaluate((x: unknown) => {
           // eslint-disable-next-line no-eval
           eval(x);
         }, jsCode);
