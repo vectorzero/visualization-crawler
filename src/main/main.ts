@@ -36,7 +36,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('crawler', async (event, arg) => {
-  console.log(screen.getCursorScreenPoint());
+  // console.log(screen.getCursorScreenPoint());
   const findChromePath = await findChrome({});
   const { executablePath } = findChromePath;
   const launchConfig = {
@@ -79,13 +79,11 @@ ipcMain.on('crawler', async (event, arg) => {
     }
   }
   if (arg && arg.list && arg.list.length && arg.times) {
-    const tempList = arg.list;
-    tempList.forEach((item: unknown) => {
-      if (item.type === 'sLoop') {
-        //
-      }
-    });
-    console.log(arg.list);
+    // const tempList = arg.list;
+    // tempList.forEach((item: unknown) => {
+    //   if (item.type === 'sLoop') {}
+    // });
+    // console.log(arg.list);
     let arr: object[] = [];
     for (let i = 0; i < arg.times; i += 1) {
       arr = [...arr, ...arg.list];
@@ -94,9 +92,11 @@ ipcMain.on('crawler', async (event, arg) => {
       const randomStr = getRandom(16);
       const now = dayjs().format('MM-DD HH:mm:ss');
       if (
+        item.type !== 'point' &&
         item.type !== 'jump' &&
         item.type !== 'js' &&
         item.type !== 'keyboard' &&
+        item.type !== 'mouse' &&
         item.target
       ) {
         await page.waitForSelector(item.target);
@@ -151,6 +151,37 @@ ipcMain.on('crawler', async (event, arg) => {
         };
         await page.keyboard[keyMap[item.target]](item.value);
       }
+      if (item.type === 'mouse' && item.target) {
+        if (!(item.value && item.value.includes(','))) {
+          event.reply('crawler', {
+            type: 'error',
+            msg: `【错误】坐标值异常`,
+            id: randomStr,
+            date: now,
+          });
+          return;
+        }
+        const points = item.value.split(',');
+        const pointX = +points[0];
+        const pointY = +points[1];
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【鼠标】${item.target}${item.value}`,
+          id: randomStr,
+          date: now,
+        });
+        const keyMap = {
+          持续按着: 'down',
+          按一下: 'click',
+          释放鼠标: 'up',
+          移动鼠标: 'move',
+        };
+        if (item.target === 'click' || item.target === 'move') {
+          await page.keyboard[keyMap[item.target]](pointX, pointY);
+        } else {
+          await page.keyboard[keyMap[item.target]]();
+        }
+      }
       if (item.type === 'jump' && item.target) {
         event.reply('crawler', {
           type: 'info',
@@ -172,6 +203,19 @@ ipcMain.on('crawler', async (event, arg) => {
           // eslint-disable-next-line no-eval
           eval(x);
         }, jsCode);
+      }
+      if (item.type === 'point') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【坐标获取】`,
+          id: randomStr,
+          date: now,
+        });
+        await page.evaluate((x: unknown) => {
+          // eslint-disable-next-line no-eval
+          eval(x);
+          // eslint-disable-next-line no-template-curly-in-string
+        }, 'window.addEventListener("click",function(e){alert(`${e.clientX},${e.clientY}`)})');
       }
       if (item.type === 'wait' && item.value) {
         event.reply('crawler', {

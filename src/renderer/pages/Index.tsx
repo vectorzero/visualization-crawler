@@ -28,14 +28,17 @@ export default function Index() {
     { label: '单击', value: 'click' },
     { label: '双击', value: 'dbclick' },
     { label: '输入', value: 'input' },
-    { label: '按键', value: 'keyboard' },
+    { label: '键盘', value: 'keyboard' },
+    { label: '鼠标', value: 'mouse' },
     { label: '运行js', value: 'js' },
     { label: '等待', value: 'wait' },
-    { label: '开始循环', value: 'sLoop' },
-    { label: '结束循环', value: 'eLoop' },
+    { label: '坐标获取', value: 'point' },
+    // { label: '开始循环', value: 'sLoop' },
+    // { label: '结束循环', value: 'eLoop' },
     { label: '刷新页面', value: 'reload' },
   ]);
   const [pressTypes] = useState(['持续按着', '按一下', '释放按键']);
+  const [mouseTypes] = useState(['移动鼠标', '持续按着', '按一下', '释放鼠标']);
   const [list, setList] = useState([]);
   const [logs, setLogs] = useState([]);
   const [loopTimes, setLoopTimes] = useState(1);
@@ -132,6 +135,10 @@ export default function Index() {
       );
       setLogs(newLogs);
     });
+    // window.addEventListener('mousemove', moveMouse);
+    // ipcRenderer.on('mouse', (arg) => {
+    //   console.log(arg);
+    // });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -219,7 +226,7 @@ export default function Index() {
                   <Select
                     className="select-item"
                     showSearch
-                    placeholder="选择按压方式"
+                    placeholder="选择方式"
                     optionFilterProp="children"
                     value={item.target}
                     onChange={(e) => changeSelect(e, item.id, 'target')}
@@ -254,6 +261,35 @@ export default function Index() {
                       </Option>
                     ))}
                   </Select>
+                </>
+              )}
+              {['mouse'].includes(item.type) && (
+                <>
+                  <Select
+                    className="select-item"
+                    showSearch
+                    placeholder="选择方式"
+                    optionFilterProp="children"
+                    value={item.target}
+                    onChange={(e) => changeSelect(e, item.id, 'target')}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {mouseTypes.map((k) => (
+                      <Option value={k} key={k}>
+                        {k}
+                      </Option>
+                    ))}
+                  </Select>
+                  <Input
+                    className="input-item"
+                    value={item.value}
+                    onChange={(e) => changeInput(e, item.id, 'value')}
+                    placeholder="请填写坐标,格式: 100,200"
+                  />
                 </>
               )}
             </div>
