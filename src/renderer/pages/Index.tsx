@@ -26,7 +26,7 @@ export default function Index() {
     { label: '跳转', value: 'jump' },
     { label: '存在', value: 'exist' },
     { label: '单击', value: 'click' },
-    { label: '双击', value: 'dbclick' },
+    { label: '双击', value: 'dblclick' },
     { label: '输入', value: 'input' },
     { label: '键盘', value: 'keyboard' },
     { label: '鼠标', value: 'mouse' },
@@ -82,11 +82,13 @@ export default function Index() {
   };
 
   const handleAdd = () => {
+    const lastSort = list.length;
     list.push({
       id: new Date().getTime().toString(),
       type: 'jump',
       target: '',
       value: '',
+      sort: lastSort,
     });
     const newArr = [...list];
     setList(newArr);
@@ -94,6 +96,9 @@ export default function Index() {
 
   const handleDelete = (id) => {
     const newList = list.filter((v) => v.id !== id);
+    newList.forEach((item, index) => {
+      item.sort = index;
+    });
     setList(newList);
     localStorage.setItem('list', JSON.stringify(newList));
   };
@@ -119,6 +124,54 @@ export default function Index() {
     setLoopTimes(val);
   };
 
+  const compare = (key) => {
+    return (obj1, obj2) => {
+      if (obj1[key] < obj2[key]) {
+        return -1;
+      }
+      if (obj1[key] > obj2[key]) {
+        return 1;
+      }
+      return 0;
+    };
+  };
+
+  const dragStart = (e, sort, id) => {
+    e.dataTransfer.setData('sort', sort);
+    e.dataTransfer.setData('id', id);
+  };
+
+  const dragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const drop = (e, droppedSort, data) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('id');
+    const sort = e.dataTransfer.getData('sort');
+    if (sort < droppedSort) {
+      data.map((item) => {
+        if (item.id === id) {
+          item.sort = droppedSort;
+        } else if (item.sort > sort && item.sort < droppedSort + 1) {
+          item.sort -= 1;
+        }
+        return item;
+      });
+    } else {
+      data.map((item) => {
+        if (item.id === id) {
+          item.sort = droppedSort;
+        } else if (item.sort > droppedSort - 1 && item.sort < sort) {
+          item.sort += 1;
+        }
+        return item;
+      });
+    }
+    const newArr = [...data];
+    setList(newArr);
+  };
+
   useEffect(() => {
     const times = localStorage.getItem('loopTimes');
     setLoopTimes(Number(times));
@@ -135,10 +188,6 @@ export default function Index() {
       );
       setLogs(newLogs);
     });
-    // window.addEventListener('mousemove', moveMouse);
-    // ipcRenderer.on('mouse', (arg) => {
-    //   console.log(arg);
-    // });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -148,9 +197,16 @@ export default function Index() {
         新增步骤
       </Button>
       <div className="step-wrap">
-        {list.map((item) => {
+        {list.sort(compare('sort')).map((item) => {
           return (
-            <div className="step-item" key={item.id}>
+            <div
+              className="step-item"
+              key={item.id}
+              draggable
+              onDragStart={(e) => dragStart(e, item.sort, item.id)}
+              onDragOver={(e) => dragOver(e)}
+              onDrop={(e) => drop(e, item.sort, list)}
+            >
               <Tooltip title="删除">
                 <DeleteOutlined
                   className="del-btn"
@@ -158,6 +214,7 @@ export default function Index() {
                 />
               </Tooltip>
               <Select
+                style={{ width: '80px' }}
                 value={item.type}
                 onChange={(e) => changeSelect(e, item.id)}
               >
@@ -177,7 +234,7 @@ export default function Index() {
                   placeholder="请输入网址"
                 />
               )}
-              {['click', 'dbclick', 'input', 'exist'].includes(item.type) && (
+              {['click', 'dblclick', 'input', 'exist'].includes(item.type) && (
                 <>
                   <Input
                     className="input-item"

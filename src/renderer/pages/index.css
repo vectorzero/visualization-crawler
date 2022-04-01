@@ -39,6 +39,7 @@
 }
 
 .step-item {
+  cursor: move;
   position: relative;
   display: flex;
   align-items: center;
@@ -75,8 +76,8 @@
 }
 
 .num-item {
-  margin: 0 10px!important;
-  width: 80px!important;
+  margin: 0 10px !important;
+  width: 80px !important;
 }
 
 .log-wrap {

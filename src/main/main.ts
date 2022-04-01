@@ -42,27 +42,26 @@ ipcMain.on('crawler', async (event, arg) => {
     let tempList = arg.list;
     const startList = tempList.filter((v) => v.type === 'sLoop');
     const endList = tempList.filter((v) => v.type === 'eLoop');
-    if (
-      (!startList.length && !endList.length) ||
-      (startList.length === 1 && endList.length === 1)
-    ) {
-      // 内循环
-      const startIndex = tempList.findIndex((v) => v.type === 'sLoop');
-      const endIndex = tempList.findIndex((v) => v.type === 'eLoop');
-      const startArr = tempList.slice(0, startIndex);
-      const endArr = tempList.slice(endIndex + 1, tempList.length);
-      const loopTimes = +tempList.find((v) => v.type === 'sLoop').value;
-      const loopArr = tempList.slice(startIndex + 1, endIndex);
-      const midArr = new Array(loopTimes).fill(loopArr).flat();
-      tempList = [...startArr, ...midArr, ...endArr];
-    } else {
-      event.reply('crawler', {
-        type: 'error',
-        msg: `【错误】只允许存在一个开始循环和结束循环`,
-        id: getRandom(16),
-        date: dayjs().format('MM-DD HH:mm:ss'),
-      });
-      return;
+    if (startList.length || endList.length) {
+      if (startList.length === 1 && endList.length === 1) {
+        // 内循环
+        const startIndex = tempList.findIndex((v) => v.type === 'sLoop');
+        const endIndex = tempList.findIndex((v) => v.type === 'eLoop');
+        const startArr = tempList.slice(0, startIndex);
+        const endArr = tempList.slice(endIndex + 1, tempList.length);
+        const loopTimes = +tempList.find((v) => v.type === 'sLoop').value;
+        const loopArr = tempList.slice(startIndex + 1, endIndex);
+        const midArr = new Array(loopTimes).fill(loopArr).flat();
+        tempList = [...startArr, ...midArr, ...endArr];
+      } else {
+        event.reply('crawler', {
+          type: 'error',
+          msg: `【错误】只允许存在一个开始循环和结束循环`,
+          id: getRandom(16),
+          date: dayjs().format('MM-DD HH:mm:ss'),
+        });
+        return;
+      }
     }
     for (let i = 0; i < arg.times; i += 1) {
       lastArr = [...lastArr, ...tempList];
@@ -148,7 +147,7 @@ ipcMain.on('crawler', async (event, arg) => {
         });
         await ele.click();
       }
-      if (item.type === 'dbclick') {
+      if (item.type === 'dblclick') {
         event.reply('crawler', {
           type: 'info',
           msg: `【双击】${item.target}`,
