@@ -32,6 +32,7 @@ export default function Index() {
     { label: '鼠标', value: 'mouse' },
     { label: '运行js', value: 'js' },
     { label: '等待', value: 'wait' },
+    { label: '网页截图', value: 'screenshot' },
     { label: '坐标获取', value: 'point' },
     { label: '开始循环', value: 'sLoop' },
     { label: '结束循环', value: 'eLoop' },

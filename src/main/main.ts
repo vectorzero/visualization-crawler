@@ -117,6 +117,23 @@ ipcMain.on('crawler', async (event, arg) => {
       }
     }
   }
+  const autoScroll = (_page: unknown) => {
+    return _page.evaluate(() => {
+      return new Promise((resolve) => {
+        let totalHeight = 0;
+        const distance = 100;
+        const timer = setInterval(() => {
+          const { scrollHeight } = document.body;
+          window.scrollBy(0, distance);
+          totalHeight += distance;
+          if (totalHeight >= scrollHeight) {
+            clearInterval(timer);
+            resolve();
+          }
+        }, 100);
+      });
+    });
+  };
   asyncForEach(lastArr, async (item: unknown) => {
     const randomStr = getRandom(16);
     const now = dayjs().format('MM-DD HH:mm:ss');
@@ -205,10 +222,10 @@ ipcMain.on('crawler', async (event, arg) => {
         释放鼠标: 'up',
         移动鼠标: 'move',
       };
-      if (item.target === 'click' || item.target === 'move') {
-        await page.keyboard[keyMap[item.target]](pointX, pointY);
+      if (item.target === '按一下' || item.target === '移动鼠标') {
+        await page.mouse[keyMap[item.target]](pointX, pointY);
       } else {
-        await page.keyboard[keyMap[item.target]]();
+        await page.mouse[keyMap[item.target]]();
       }
     }
     if (item.type === 'jump' && item.target) {
@@ -245,6 +262,19 @@ ipcMain.on('crawler', async (event, arg) => {
         eval(x);
         // eslint-disable-next-line no-template-curly-in-string
       }, 'window.addEventListener("click",function(e){alert(`${e.clientX},${e.clientY}`)})');
+    }
+    if (item.type === 'screenshot') {
+      event.reply('crawler', {
+        type: 'info',
+        msg: `【截图】${randomStr}.png`,
+        id: randomStr,
+        date: now,
+      });
+      await autoScroll(page);
+      await page.screenshot({
+        path: `${randomStr}.png`,
+        fullPage: true,
+      });
     }
     if (item.type === 'wait' && item.value) {
       event.reply('crawler', {
