@@ -224,6 +224,20 @@ ipcMain.on('crawler', async (event, arg) => {
       };
       if (item.target === '按一下' || item.target === '移动鼠标') {
         await page.mouse[keyMap[item.target]](pointX, pointY);
+        const clickCode =
+          // eslint-disable-next-line no-template-curly-in-string
+          `const point = document.createElement('div');point.setAttribute( 'class', 'point${randomStr}');document.body.appendChild(point); const styleSheet = document.createElement('style'); document.head.appendChild(styleSheet); styleSheet.textContent = '.point${randomStr}{background:rgba(255,255,0,0.3); width:30px; height:30px;position:fixed; top:${
+            pointY - 15
+          }px; left:${
+            pointX - 15
+          }px; border-radius: 50%;z-index: 9999;} .point${randomStr}::after{content: "";background: red; width: 2px; height: 2px; position: fixed; top: ${pointY}px; left: ${pointX}px;}'`;
+        if (item.target === '按一下') {
+          await page.evaluate((x: unknown) => {
+            // eslint-disable-next-line no-eval
+            eval(x);
+            // eslint-disable-next-line no-template-curly-in-string
+          }, clickCode);
+        }
       } else {
         await page.mouse[keyMap[item.target]]();
       }
