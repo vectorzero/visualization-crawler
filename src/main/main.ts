@@ -15,6 +15,8 @@ import log from 'electron-log';
 import dayjs from 'dayjs';
 // import MenuBuilder from './menu';
 import { resolveHtmlPath, getRandom } from './util';
+import axios from 'axios';
+import fs from 'fs';
 
 const puppeteer = require('puppeteer-core');
 const findChrome = require('./find_chrome');
@@ -40,16 +42,16 @@ ipcMain.on('crawler', async (event, arg) => {
   let lastArr: object[] = [];
   if (arg && arg.list && arg.list.length && arg.times) {
     let tempList = arg.list;
-    const startList = tempList.filter((v) => v.type === 'sLoop');
-    const endList = tempList.filter((v) => v.type === 'eLoop');
+    const startList = tempList.filter((v:{type: string}) => v.type === 'sLoop');
+    const endList = tempList.filter((v:{type: string}) => v.type === 'eLoop');
     if (startList.length || endList.length) {
       if (startList.length === 1 && endList.length === 1) {
         // 内循环
-        const startIndex = tempList.findIndex((v) => v.type === 'sLoop');
-        const endIndex = tempList.findIndex((v) => v.type === 'eLoop');
+        const startIndex = tempList.findIndex((v:{type: string}) => v.type === 'sLoop');
+        const endIndex = tempList.findIndex((v:{type: string}) => v.type === 'eLoop');
         const startArr = tempList.slice(0, startIndex);
         const endArr = tempList.slice(endIndex + 1, tempList.length);
-        const loopTimes = +tempList.find((v) => v.type === 'sLoop').value;
+        const loopTimes = +tempList.find((v:{type: string}) => v.type === 'sLoop').value;
         const loopArr = tempList.slice(startIndex + 1, endIndex);
         const midArr = new Array(loopTimes).fill(loopArr).flat();
         tempList = [...startArr, ...midArr, ...endArr];
@@ -94,10 +96,10 @@ ipcMain.on('crawler', async (event, arg) => {
   // browser = await puppeteer.connect({ browserWSEndpoint });
   const page = await browser.newPage();
   async function asyncForEach(
-    array: string | unknown[],
+    array: string | any[],
     callback: {
-      (item: unknown): Promise<void>;
-      (arg0: unknown, arg1: number, arg2: unknown): unknown;
+      (item: any): Promise<void>;
+      (arg0: any, arg1: number, arg2: any): any;
     }
   ) {
     // eslint-disable-next-line no-plusplus
@@ -105,7 +107,7 @@ ipcMain.on('crawler', async (event, arg) => {
       try {
         // eslint-disable-next-line no-await-in-loop
         await callback(array[index], index, array);
-      } catch (e: unknown) {
+      } catch (e: any) {
         const randomStr = getRandom(16);
         const now = dayjs().format('MM-DD HH:mm:ss');
         event.reply('crawler', {
@@ -117,7 +119,7 @@ ipcMain.on('crawler', async (event, arg) => {
       }
     }
   }
-  const autoScroll = (_page: unknown) => {
+  const autoScroll = (_page: any) => {
     return _page.evaluate(() => {
       return new Promise((resolve) => {
         let totalHeight = 0;
@@ -134,7 +136,19 @@ ipcMain.on('crawler', async (event, arg) => {
       });
     });
   };
-  asyncForEach(lastArr, async (item: unknown) => {
+
+  const downloadImage = (url:string) => {
+    axios({
+      method: 'get', 
+      url, 
+      responseType: 'stream'
+  }).then( (response:any) => {
+      console.log(response)
+      response.data.pipe(fs.createWriteStream(path.basename(url)))
+  });
+  }
+
+  asyncForEach(lastArr, async (item: any) => {
     const randomStr = getRandom(16);
     const now = dayjs().format('MM-DD HH:mm:ss');
     if (
@@ -143,6 +157,7 @@ ipcMain.on('crawler', async (event, arg) => {
       item.type !== 'js' &&
       item.type !== 'keyboard' &&
       item.type !== 'mouse' &&
+      item.type !== 'screenshot' &&
       item.target
     ) {
       await page.waitForSelector(item.target);
@@ -174,14 +189,24 @@ ipcMain.on('crawler', async (event, arg) => {
         await ele.click({ clickCount: 2 });
       }
       if (item.type === 'input') {
+        const typeValue = item.value1 === 'text' ? item.value : '***********'
         event.reply('crawler', {
           type: 'info',
-          msg: `【输入】${item.target} -> ${item.value}`,
+          msg: `【输入】${item.target} -> ${typeValue}`,
           id: randomStr,
           date: now,
         });
         await ele.type(item.value);
       }
+      if (item.type === 'image') {{
+        const elements = await page.$$(item.target)
+        if (elements && elements.length) {
+          console.log([...elements])
+          // [...elements].forEach((item:any) => {
+          //   downloadImage(item.url)
+          // });
+        }
+      }}
     }
     if (item.type === 'keyboard' && item.target) {
       event.reply('crawler', {
@@ -232,7 +257,7 @@ ipcMain.on('crawler', async (event, arg) => {
             pointX - 15
           }px; border-radius: 50%;z-index: 9999;} .point${randomStr}::after{content: "";background: red; width: 2px; height: 2px; position: fixed; top: ${pointY}px; left: ${pointX}px;}'`;
         if (item.target === '按一下') {
-          await page.evaluate((x: unknown) => {
+          await page.evaluate((x: any) => {
             // eslint-disable-next-line no-eval
             eval(x);
             // eslint-disable-next-line no-template-curly-in-string
@@ -259,7 +284,7 @@ ipcMain.on('crawler', async (event, arg) => {
         id: randomStr,
         date: now,
       });
-      await page.evaluate((x: unknown) => {
+      await page.evaluate((x: any) => {
         // eslint-disable-next-line no-eval
         eval(x);
       }, jsCode);
@@ -271,7 +296,7 @@ ipcMain.on('crawler', async (event, arg) => {
         id: randomStr,
         date: now,
       });
-      await page.evaluate((x: unknown) => {
+      await page.evaluate((x: any) => {
         // eslint-disable-next-line no-eval
         eval(x);
         // eslint-disable-next-line no-template-curly-in-string
@@ -286,7 +311,7 @@ ipcMain.on('crawler', async (event, arg) => {
       });
       await autoScroll(page);
       await page.screenshot({
-        path: `${randomStr}.png`,
+        path: `${item.target ? item.target+ '/' : '' }${randomStr}.png`,
         fullPage: true,
       });
     }
@@ -309,6 +334,7 @@ ipcMain.on('crawler', async (event, arg) => {
       await page.reload();
     }
   });
+  // await browser.close()
 });
 
 if (process.env.NODE_ENV === 'production') {

@@ -53,6 +53,11 @@
   margin-left: 10px;
 }
 
+.step-item>.input-tip {
+  width: 172px;
+  margin-left: 10px;
+}
+
 .step-item>.del-btn {
   position: absolute;
   right: 5px;
