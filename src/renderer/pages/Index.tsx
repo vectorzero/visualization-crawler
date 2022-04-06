@@ -243,7 +243,7 @@ export default function Index() {
                   className="input-item"
                   value={item.target}
                   onChange={(e) => changeInput(e, item.id, 'target')}
-                  placeholder="请输入存放截图的路径"
+                  placeholder="请输入存放文件的路径"
                 />
               )}
               {['click', 'dblclick', 'input', 'exist','image','text'].includes(item.type) && (
@@ -263,6 +263,14 @@ export default function Index() {
                     />
                   </Tooltip>
                 </>
+              )}
+              {['image'].includes(item.type) && (
+                <Input
+                  className="input-item"
+                  value={item.value}
+                  onChange={(e) => changeInput(e, item.id, 'value')}
+                  placeholder="请输入存放文件的路径"
+                />
               )}
               {['js'].includes(item.type) && (
                 <Input

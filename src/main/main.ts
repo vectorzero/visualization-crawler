@@ -132,7 +132,7 @@ ipcMain.on('crawler', async (event, arg) => {
 
   const autoScroll = (_page: any) => {
     return _page.evaluate(() => {
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         let totalHeight = 0;
         const distance = 100;
         const timer = setInterval(() => {
@@ -156,7 +156,7 @@ ipcMain.on('crawler', async (event, arg) => {
     })
       .then((response: any) => {
         const fileString = path.basename(url);
-        const fileName = fileString.split('.')[0] + getRandom(16);
+        const fileName = `${dir ? `${dir}/` : ''}${getRandom(16)}-${fileString.split('.')[0]}`;
         const fileType = fileString.split('.')[1];
         response.data.pipe(fs.createWriteStream(`${fileName}.${fileType}`));
       })
@@ -165,20 +165,20 @@ ipcMain.on('crawler', async (event, arg) => {
       });
   };
 
-  const base64ToImg = async (src: string, dir: string) => {
+  const base64ToImg = async (src: string,  dir: string) => {
     const reg = /^data:image\/(.*?);base64,(.*)/;
     const result = src.match(reg);
-    const ext = result[1];
+    const fileName = `${dir ? `${dir}/` : ''}${getRandom(16)}`;
+    const fileType = result[1];
     const data = Buffer.from(result[2], 'base64');
-    console.log('base64ToImg : ', src.slice(0, 50));
-    // await writeFile(imgDir(ext), data);
+    fs.writeFileSync(`${fileName}.${fileType}`,data)
   };
 
-  async function getImg(src) {
+  async function getImg(src:string, dir:string) {
     if (/^http:\/\/|https:\/\//.test(src)) {
-      await downloadImage(src);
+      await downloadImage(src, dir);
     } else {
-      await base64ToImg(src);
+      await base64ToImg(src, dir);
     }
   }
 
@@ -233,16 +233,28 @@ ipcMain.on('crawler', async (event, arg) => {
         await ele.type(item.value);
       }
       if (item.type === 'image') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【爬取图片】正在爬取图片...`,
+          id: randomStr,
+          date: now,
+        });
         const urls = await page.evaluate((x: any) => {
-          const arr = [];
+          const arr:string[] = [];
           const images = document.querySelectorAll(x.target);
           [...images].forEach((v: any) => {
             arr.push(v.src);
           });
           return arr;
         }, item);
-        urls.forEach(async (src) => {
-          await getImg(src);
+        urls.forEach(async (src:string) => {
+          await getImg(src,item.value);
+        });
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【爬取图片】图片保存至${item.value}文件夹中`,
+          id: randomStr + 1,
+          date: now + 1,
         });
       }
     }
@@ -341,15 +353,16 @@ ipcMain.on('crawler', async (event, arg) => {
       }, 'window.addEventListener("click",function(e){alert(`${e.clientX},${e.clientY}`)})');
     }
     if (item.type === 'screenshot') {
+      const path = `${item.target ? `${item.target}/` : ''}${randomStr}.png`
       event.reply('crawler', {
         type: 'info',
-        msg: `【截图】${randomStr}.png`,
+        msg: `【截图】${path}`,
         id: randomStr,
         date: now,
       });
       await autoScroll(page);
       await page.screenshot({
-        path: `${item.target ? `${item.target}/` : ''}${randomStr}.png`,
+        path,
         fullPage: true,
       });
     }
