@@ -14,9 +14,9 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import dayjs from 'dayjs';
 // import MenuBuilder from './menu';
-import { resolveHtmlPath, getRandom } from './util';
 import axios from 'axios';
 import fs from 'fs';
+import { resolveHtmlPath, getRandom } from './util';
 
 const puppeteer = require('puppeteer-core');
 const findChrome = require('./find_chrome');
@@ -42,16 +42,26 @@ ipcMain.on('crawler', async (event, arg) => {
   let lastArr: object[] = [];
   if (arg && arg.list && arg.list.length && arg.times) {
     let tempList = arg.list;
-    const startList = tempList.filter((v:{type: string}) => v.type === 'sLoop');
-    const endList = tempList.filter((v:{type: string}) => v.type === 'eLoop');
+    const startList = tempList.filter(
+      (v: { type: string }) => v.type === 'sLoop'
+    );
+    const endList = tempList.filter(
+      (v: { type: string }) => v.type === 'eLoop'
+    );
     if (startList.length || endList.length) {
       if (startList.length === 1 && endList.length === 1) {
         // 内循环
-        const startIndex = tempList.findIndex((v:{type: string}) => v.type === 'sLoop');
-        const endIndex = tempList.findIndex((v:{type: string}) => v.type === 'eLoop');
+        const startIndex = tempList.findIndex(
+          (v: { type: string }) => v.type === 'sLoop'
+        );
+        const endIndex = tempList.findIndex(
+          (v: { type: string }) => v.type === 'eLoop'
+        );
         const startArr = tempList.slice(0, startIndex);
         const endArr = tempList.slice(endIndex + 1, tempList.length);
-        const loopTimes = +tempList.find((v:{type: string}) => v.type === 'sLoop').value;
+        const loopTimes = +tempList.find(
+          (v: { type: string }) => v.type === 'sLoop'
+        ).value;
         const loopArr = tempList.slice(startIndex + 1, endIndex);
         const midArr = new Array(loopTimes).fill(loopArr).flat();
         tempList = [...startArr, ...midArr, ...endArr];
@@ -119,6 +129,7 @@ ipcMain.on('crawler', async (event, arg) => {
       }
     }
   }
+
   const autoScroll = (_page: any) => {
     return _page.evaluate(() => {
       return new Promise((resolve) => {
@@ -137,15 +148,38 @@ ipcMain.on('crawler', async (event, arg) => {
     });
   };
 
-  const downloadImage = (url:string) => {
+  const downloadImage = async (url: string, dir: string) => {
     axios({
-      method: 'get', 
-      url, 
-      responseType: 'stream'
-  }).then( (response:any) => {
-      console.log(response)
-      response.data.pipe(fs.createWriteStream(path.basename(url)))
-  });
+      method: 'get',
+      url,
+      responseType: 'stream',
+    })
+      .then((response: any) => {
+        const fileString = path.basename(url);
+        const fileName = fileString.split('.')[0] + getRandom(16);
+        const fileType = fileString.split('.')[1];
+        response.data.pipe(fs.createWriteStream(`${fileName}.${fileType}`));
+      })
+      .catch((err: any) => {
+        console.log('image', err);
+      });
+  };
+
+  const base64ToImg = async (src: string, dir: string) => {
+    const reg = /^data:image\/(.*?);base64,(.*)/;
+    const result = src.match(reg);
+    const ext = result[1];
+    const data = Buffer.from(result[2], 'base64');
+    console.log('base64ToImg : ', src.slice(0, 50));
+    // await writeFile(imgDir(ext), data);
+  };
+
+  async function getImg(src) {
+    if (/^http:\/\/|https:\/\//.test(src)) {
+      await downloadImage(src);
+    } else {
+      await base64ToImg(src);
+    }
   }
 
   asyncForEach(lastArr, async (item: any) => {
@@ -189,7 +223,7 @@ ipcMain.on('crawler', async (event, arg) => {
         await ele.click({ clickCount: 2 });
       }
       if (item.type === 'input') {
-        const typeValue = item.value1 === 'text' ? item.value : '***********'
+        const typeValue = item.value1 === 'text' ? item.value : '***********';
         event.reply('crawler', {
           type: 'info',
           msg: `【输入】${item.target} -> ${typeValue}`,
@@ -198,15 +232,19 @@ ipcMain.on('crawler', async (event, arg) => {
         });
         await ele.type(item.value);
       }
-      if (item.type === 'image') {{
-        const elements = await page.$$(item.target)
-        if (elements && elements.length) {
-          console.log([...elements])
-          // [...elements].forEach((item:any) => {
-          //   downloadImage(item.url)
-          // });
-        }
-      }}
+      if (item.type === 'image') {
+        const urls = await page.evaluate((x: any) => {
+          const arr = [];
+          const images = document.querySelectorAll(x.target);
+          [...images].forEach((v: any) => {
+            arr.push(v.src);
+          });
+          return arr;
+        }, item);
+        urls.forEach(async (src) => {
+          await getImg(src);
+        });
+      }
     }
     if (item.type === 'keyboard' && item.target) {
       event.reply('crawler', {
@@ -311,7 +349,7 @@ ipcMain.on('crawler', async (event, arg) => {
       });
       await autoScroll(page);
       await page.screenshot({
-        path: `${item.target ? item.target+ '/' : '' }${randomStr}.png`,
+        path: `${item.target ? `${item.target}/` : ''}${randomStr}.png`,
         fullPage: true,
       });
     }
@@ -407,8 +445,8 @@ const createWindow = async () => {
   // menuBuilder.buildMenu();
 
   // Open urls in the user's browser
-  mainWindow.webContents.setWindowOpenHandler((edata) => {
-    shell.openExternal(edata.url);
+  mainWindow.webContents.setWindowOpenHandler((data) => {
+    shell.openExternal(data.url);
     return { action: 'deny' };
   });
 
