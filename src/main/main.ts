@@ -234,6 +234,34 @@ ipcMain.on('crawler', async (event, arg) => {
         });
         await ele.type(item.value);
       }
+      if (item.type === 'text') {
+        event.reply('crawler', {
+          type: 'info',
+          msg: `【爬取文本】正在爬取文本...`,
+          id: randomStr,
+          date: now,
+        });
+        const texts = await page.evaluate((x: any) => {
+          const arr: string[] = [];
+          const doms = document.querySelectorAll(x.target);
+          [...doms].forEach((v: any) => {
+            arr.push(v.innerText);
+          });
+          return arr;
+        }, item);
+        if (texts.length) {
+          const fileName = `${item.value ? `${item.value}/` : ''}${getRandom(16)}`;
+          const fileType = 'txt';
+          console.log(texts.join('\n'))
+          fs.writeFileSync(`${fileName}.${fileType}`, texts.join('\n'));
+          event.reply('crawler', {
+            type: 'info',
+            msg: `【爬取文本】文本保存至${item.value}文件夹中`,
+            id: randomStr + 1,
+            date: now + 1,
+          });
+        }
+      }
       if (item.type === 'image') {
         event.reply('crawler', {
           type: 'info',
@@ -243,8 +271,8 @@ ipcMain.on('crawler', async (event, arg) => {
         });
         const urls = await page.evaluate((x: any) => {
           const arr: string[] = [];
-          const images = document.querySelectorAll(x.target);
-          [...images].forEach((v: any) => {
+          const doms = document.querySelectorAll(x.target);
+          [...doms].forEach((v: any) => {
             arr.push(v.src);
           });
           return arr;
