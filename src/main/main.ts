@@ -156,7 +156,9 @@ ipcMain.on('crawler', async (event, arg) => {
     })
       .then((response: any) => {
         const fileString = path.basename(url);
-        const fileName = `${dir ? `${dir}/` : ''}${getRandom(16)}-${fileString.split('.')[0]}`;
+        const fileName = `${dir ? `${dir}/` : ''}${getRandom(16)}-${
+          fileString.split('.')[0]
+        }`;
         const fileType = fileString.split('.')[1];
         response.data.pipe(fs.createWriteStream(`${fileName}.${fileType}`));
       })
@@ -165,16 +167,16 @@ ipcMain.on('crawler', async (event, arg) => {
       });
   };
 
-  const base64ToImg = async (src: string,  dir: string) => {
+  const base64ToImg = async (src: string, dir: string) => {
     const reg = /^data:image\/(.*?);base64,(.*)/;
     const result = src.match(reg);
     const fileName = `${dir ? `${dir}/` : ''}${getRandom(16)}`;
     const fileType = result[1];
     const data = Buffer.from(result[2], 'base64');
-    fs.writeFileSync(`${fileName}.${fileType}`,data)
+    fs.writeFileSync(`${fileName}.${fileType}`, data);
   };
 
-  async function getImg(src:string, dir:string) {
+  async function getImg(src: string, dir: string) {
     if (/^http:\/\/|https:\/\//.test(src)) {
       await downloadImage(src, dir);
     } else {
@@ -240,15 +242,15 @@ ipcMain.on('crawler', async (event, arg) => {
           date: now,
         });
         const urls = await page.evaluate((x: any) => {
-          const arr:string[] = [];
+          const arr: string[] = [];
           const images = document.querySelectorAll(x.target);
           [...images].forEach((v: any) => {
             arr.push(v.src);
           });
           return arr;
         }, item);
-        urls.forEach(async (src:string) => {
-          await getImg(src,item.value);
+        urls.forEach(async (src: string) => {
+          await getImg(src, item.value);
         });
         event.reply('crawler', {
           type: 'info',
@@ -353,16 +355,18 @@ ipcMain.on('crawler', async (event, arg) => {
       }, 'window.addEventListener("click",function(e){alert(`${e.clientX},${e.clientY}`)})');
     }
     if (item.type === 'screenshot') {
-      const path = `${item.target ? `${item.target}/` : ''}${randomStr}.png`
+      const filePath = `${
+        item.target ? `${item.target}/` : ''
+      }${randomStr}.png`;
       event.reply('crawler', {
         type: 'info',
-        msg: `【截图】${path}`,
+        msg: `【截图】${filePath}`,
         id: randomStr,
         date: now,
       });
       await autoScroll(page);
       await page.screenshot({
-        path,
+        path: filePath,
         fullPage: true,
       });
     }

@@ -48,8 +48,8 @@ export default function Index() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLogVisible, setIsLogVisible] = useState(false);
 
-  const changeVal = (val:string, id:string, prop:string) => {
-    list.forEach((item:any) => {
+  const changeVal = (val: string, id: string, prop: string) => {
+    list.forEach((item: any) => {
       if (item.id === id) {
         item[prop] = val;
       }
@@ -58,17 +58,17 @@ export default function Index() {
     setList(newArr);
   };
 
-  const changeInput = (e:any, id:string, prop:string) => {
+  const changeInput = (e: any, id: string, prop: string) => {
     const val = e.target.value;
     changeVal(val, id, prop);
   };
 
-  const changeInputNumber = (val:string, id:string, prop:string) => {
+  const changeInputNumber = (val: string, id: string, prop: string) => {
     changeVal(val, id, prop);
   };
 
-  const changeSelect = (val:string, id:string, prop = 'type') => {
-    list.forEach((item:any) => {
+  const changeSelect = (val: string, id: string, prop = 'type') => {
+    list.forEach((item: any) => {
       if (item.id === id) {
         item[prop] = val;
       }
@@ -98,9 +98,9 @@ export default function Index() {
     setList(newArr);
   };
 
-  const handleDelete = (id:string) => {
-    const newList = list.filter((v:{id:string}) => v.id !== id);
-    newList.forEach((item:any, index) => {
+  const handleDelete = (id: string) => {
+    const newList = list.filter((v: { id: string }) => v.id !== id);
+    newList.forEach((item: any, index) => {
       item.sort = index;
     });
     setList(newList);
@@ -128,8 +128,8 @@ export default function Index() {
     setLoopTimes(val);
   };
 
-  const compare = (key:string) => {
-    return (obj1:any, obj2:any) => {
+  const compare = (key: string) => {
+    return (obj1: any, obj2: any) => {
       if (obj1[key] < obj2[key]) {
         return -1;
       }
@@ -140,21 +140,21 @@ export default function Index() {
     };
   };
 
-  const dragStart = (e:any, sort:number, id:string) => {
+  const dragStart = (e: any, sort: number, id: string) => {
     e.dataTransfer.setData('sort', sort);
     e.dataTransfer.setData('id', id);
   };
 
-  const dragOver = (e:any) => {
+  const dragOver = (e: any) => {
     e.preventDefault();
   };
 
-  const drop = (e:any, droppedSort:number, data:[]) => {
+  const drop = (e: any, droppedSort: number, data: []) => {
     e.preventDefault();
     const id = e.dataTransfer.getData('id');
     const sort = e.dataTransfer.getData('sort');
     if (sort < droppedSort) {
-      data.map((item:any) => {
+      data.map((item: any) => {
         if (item.id === id) {
           item.sort = droppedSort;
         } else if (item.sort > sort && item.sort < droppedSort + 1) {
@@ -163,7 +163,7 @@ export default function Index() {
         return item;
       });
     } else {
-      data.map((item:any) => {
+      data.map((item: any) => {
         if (item.id === id) {
           item.sort = droppedSort;
         } else if (item.sort > droppedSort - 1 && item.sort < sort) {
@@ -183,12 +183,12 @@ export default function Index() {
     if (str) {
       setList(JSON.parse(str));
     }
-    ipcRenderer.on('crawler', (arg:any) => {
+    ipcRenderer.on('crawler', (arg: any) => {
       let newLogs = [];
       logs.unshift(arg);
       newLogs = logs.filter(
-        (item:any, index, self) =>
-          self.findIndex((el:{id: string}) => el.id === item.id) === index
+        (item: any, index, self) =>
+          self.findIndex((el: { id: string }) => el.id === item.id) === index
       );
       setLogs(newLogs);
     });
@@ -246,7 +246,14 @@ export default function Index() {
                   placeholder="请输入存放文件的路径"
                 />
               )}
-              {['click', 'dblclick', 'input', 'exist','image','text'].includes(item.type) && (
+              {[
+                'click',
+                'dblclick',
+                'input',
+                'exist',
+                'image',
+                'text',
+              ].includes(item.type) && (
                 <>
                   <Input
                     className="input-tip"
@@ -282,17 +289,20 @@ export default function Index() {
               )}
               {['input'].includes(item.type) && (
                 <Input.Group compact className="input-item">
-                    <Select defaultValue="text" onChange={(e) => changeSelect(e, item.id, 'value1')}>
-                      <Option value="text">文本</Option>
-                      <Option value="password">密码</Option>
-                    </Select>
-                    <Input
-                      style={{ width: '60%' }}
-                      value={item.value}
-                      type={item.value1}
-                      onChange={(e) => changeInput(e, item.id, 'value')}
-                      placeholder="请填写值"
-                    />
+                  <Select
+                    defaultValue="text"
+                    onChange={(e) => changeSelect(e, item.id, 'value1')}
+                  >
+                    <Option value="text">文本</Option>
+                    <Option value="password">密码</Option>
+                  </Select>
+                  <Input
+                    style={{ width: '60%' }}
+                    value={item.value}
+                    type={item.value1}
+                    onChange={(e) => changeInput(e, item.id, 'value')}
+                    placeholder="请填写值"
+                  />
                 </Input.Group>
               )}
               {['wait'].includes(item.type) && (
