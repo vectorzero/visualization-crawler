@@ -252,7 +252,6 @@ ipcMain.on('crawler', async (event, arg) => {
         if (texts.length) {
           const fileName = `${item.value ? `${item.value}/` : ''}${getRandom(16)}`;
           const fileType = 'txt';
-          console.log(texts.join('\n'))
           fs.writeFileSync(`${fileName}.${fileType}`, texts.join('\n'));
           event.reply('crawler', {
             type: 'info',

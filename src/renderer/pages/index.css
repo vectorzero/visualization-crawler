@@ -29,12 +29,14 @@
   position: relative;
   height: 100vh;
   padding: 10px;
+  background: #fafafb;;
 }
 
 .step-wrap {
   width: 600px;
   height: 500px;
   overflow-y: auto;
+  overflow-x: hidden;
   margin: 10px 0;
 }
 
@@ -45,7 +47,13 @@
   align-items: center;
   margin-bottom: 10px;
   padding: 10px;
-  border: 1px dotted #ccc;
+  background: #ffffff;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.step-item:hover {
+  transform: scale(1.02);
 }
 
 .step-item>.input-item {

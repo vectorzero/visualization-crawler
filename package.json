@@ -31,7 +31,7 @@
     ]
   },
   "build": {
-    "productName": "可视化爬虫工具",
+    "productName": "一只贤蛋",
     "appId": "org.erb.ElectronReact",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
