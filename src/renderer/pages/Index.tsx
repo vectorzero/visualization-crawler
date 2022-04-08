@@ -271,7 +271,7 @@ export default function Index() {
                   </Tooltip>
                 </>
               )}
-              {['image','text'].includes(item.type) && (
+              {['image', 'text'].includes(item.type) && (
                 <Input
                   className="input-item"
                   value={item.value}
