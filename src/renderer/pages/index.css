@@ -32,6 +32,15 @@
   background: #fafafb;
 }
 
+.operate-box {
+  display: flex;
+  justify-content: space-between;
+}
+
+.operate-item {
+  display: flex;
+}
+
 .step-wrap {
   width: 600px;
   height: 500px;
@@ -52,9 +61,9 @@
   transition: 0.2s;
 }
 
-.step-item:hover {
+/* .step-item:hover {
   transform: scale(1.02);
-}
+} */
 
 .step-item>.input-item {
   width: 200px;
@@ -79,11 +88,8 @@
   width: 100px;
 }
 
-.operate-item {
-  display: flex;
-}
-
 .input-time {
+  margin-left: 10px;
   display: flex;
   align-items: center;
 }

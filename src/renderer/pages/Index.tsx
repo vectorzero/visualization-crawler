@@ -124,7 +124,7 @@ export default function Index() {
     setIsLogVisible(isVisible);
   };
 
-  const changeTimes = (val) => {
+  const changeTimes = (val: number) => {
     setLoopTimes(val);
   };
 
@@ -197,9 +197,35 @@ export default function Index() {
 
   return (
     <div className="page-wrap">
-      <Button type="primary" onClick={handleAdd}>
-        新增步骤
-      </Button>
+      <div className="operate-box">
+        <div className="operate-item">
+          <Button type="primary" onClick={handleAdd}>
+            新增步骤
+          </Button>
+          {Boolean(list.length) && (
+            <>
+              <div className="input-time">
+                <span>循环次数</span>
+                <InputNumber
+                  className="num-item"
+                  onChange={(e) => changeTimes(e)}
+                  value={loopTimes}
+                />
+              </div>
+              <Button type="primary" onClick={handleStart}>
+                执行
+              </Button>
+            </>
+          )}
+        </div>
+        <Button
+          onClick={() => {
+            toggleLogVisible();
+          }}
+        >
+          {isLogVisible ? '关闭' : '打开'}日志
+        </Button>
+      </div>
       <div className="step-wrap">
         {list.sort(compare('sort')).map((item) => {
           return (
@@ -398,33 +424,6 @@ export default function Index() {
           );
         })}
       </div>
-      {Boolean(list.length) && (
-        <div className="operate-item">
-          <div className="input-time">
-            <span>循环次数</span>
-            <InputNumber
-              className="num-item"
-              onChange={(e) => changeTimes(e)}
-              value={loopTimes}
-            />
-          </div>
-          <Button
-            style={{ marginRight: '10px' }}
-            type="primary"
-            onClick={handleStart}
-          >
-            执行
-          </Button>
-          <Button
-            onClick={() => {
-              toggleLogVisible();
-            }}
-          >
-            {isLogVisible ? '关闭' : '打开'}日志
-          </Button>
-        </div>
-      )}
-
       <Modal
         title="获取selector"
         visible={isModalVisible}
