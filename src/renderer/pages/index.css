@@ -29,7 +29,7 @@
   position: relative;
   height: 100vh;
   padding: 10px;
-  background: #fafafb;
+  background: #f6f6f6;
 }
 
 .operate-box {
@@ -39,6 +39,16 @@
 
 .operate-item {
   display: flex;
+}
+
+.operate-right {
+  display: flex;
+  align-items: center;
+}
+
+.info-btn {
+  margin-right: 10px;
+  font-size: 20px;
 }
 
 .step-wrap {
@@ -54,24 +64,28 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   padding: 10px;
   background: #ffffff;
-  border-radius: 8px;
   transition: 0.2s;
+  border: 1px dashed #ccc;
 }
 
-/* .step-item:hover {
-  transform: scale(1.02);
-} */
+.select-main {
+  width: 80px;
+}
 
-.step-item>.input-item {
-  width: 200px;
+.step-box {
   margin-left: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-left: 10px;
+  border-left: 1px dashed #ccc;
 }
 
-.step-item>.input-tip {
-  width: 172px;
+.step-box>.input-item {
+  width: 200px;
   margin-left: 10px;
 }
 

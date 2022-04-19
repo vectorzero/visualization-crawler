@@ -22,3 +22,26 @@ export const getRandom = (num: number) => {
     (Math.random() + Math.floor(Math.random() * 9 + 1)) * 10 ** (num - 1)
   );
 };
+
+// 去除文件名中不合法的部分
+export const handleFileName = (path: string) => {
+  if (!path) return '';
+  let buffer = '';
+  for (let i = 0; i < path.length; i++) {
+    if (
+      path.charAt(i) == '\\' ||
+      path.charAt(i) == '/' ||
+      path.charAt(i) == ':' ||
+      path.charAt(i) == '*' ||
+      path.charAt(i) == '?' ||
+      path.charAt(i) == '"' ||
+      path.charAt(i) == '<' ||
+      path.charAt(i) == '>' ||
+      path.charAt(i) == '|'
+    ) {
+    } else {
+      buffer += path.charAt(i);
+    }
+  }
+  return buffer;
+};

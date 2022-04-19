@@ -92,6 +92,7 @@ export default function Index() {
       target: '',
       value: '',
       value1: 'text',
+      value2: '',
       sort: lastSort,
     });
     const newArr = [...list];
@@ -212,19 +213,30 @@ export default function Index() {
                   value={loopTimes}
                 />
               </div>
-              <Button type="primary" onClick={handleStart}>
+              <Button type="primary" danger onClick={handleStart}>
                 执行
               </Button>
             </>
           )}
         </div>
-        <Button
-          onClick={() => {
-            toggleLogVisible();
-          }}
-        >
-          {isLogVisible ? '关闭' : '打开'}日志
-        </Button>
+        <div className="operate-right">
+          <Tooltip title="点击查看如何获取选择器">
+            <InfoCircleOutlined
+              className="info-btn"
+              style={{ color: '#1890ff' }}
+              onClick={() => {
+                setIsModalVisible(true);
+              }}
+            />
+          </Tooltip>
+          <Button
+            onClick={() => {
+              toggleLogVisible();
+            }}
+          >
+            {isLogVisible ? '关闭' : '打开'}日志
+          </Button>
+        </div>
       </div>
       <div className="step-wrap">
         {list.sort(compare('sort')).map((item) => {
@@ -239,12 +251,13 @@ export default function Index() {
             >
               <Tooltip title="删除">
                 <DeleteOutlined
+                  style={{ color: 'red' }}
                   className="del-btn"
                   onClick={() => handleDelete(item.id)}
                 />
               </Tooltip>
               <Select
-                style={{ width: '80px' }}
+                className="select-main"
                 value={item.type}
                 onChange={(e) => changeSelect(e, item.id)}
               >
@@ -256,176 +269,188 @@ export default function Index() {
                   );
                 })}
               </Select>
-              {['jump'].includes(item.type) && (
-                <Input
-                  className="input-item"
-                  value={item.target}
-                  onChange={(e) => changeInput(e, item.id, 'target')}
-                  placeholder="请输入网址"
-                />
-              )}
-              {['screenshot'].includes(item.type) && (
-                <Input
-                  className="input-item"
-                  value={item.target}
-                  onChange={(e) => changeInput(e, item.id, 'target')}
-                  placeholder="请输入存放文件的路径"
-                />
-              )}
-              {[
-                'click',
-                'dblclick',
-                'input',
-                'exist',
-                'image',
-                'text',
-              ].includes(item.type) && (
-                <>
+              <div className="step-box">
+                {['jump'].includes(item.type) && (
                   <Input
-                    className="input-tip"
+                    className="input-item"
                     value={item.target}
                     onChange={(e) => changeInput(e, item.id, 'target')}
-                    placeholder="请输入selector"
+                    placeholder="请输入网址"
                   />
-                  <Tooltip title="点击查看如何获取selector">
-                    <Button
-                      icon={<InfoCircleOutlined />}
-                      onClick={() => {
-                        setIsModalVisible(true);
-                      }}
-                    />
-                  </Tooltip>
-                </>
-              )}
-              {['image', 'text'].includes(item.type) && (
-                <Input
-                  className="input-item"
-                  value={item.value}
-                  onChange={(e) => changeInput(e, item.id, 'value')}
-                  placeholder="请输入存放文件的路径"
-                />
-              )}
-              {['js'].includes(item.type) && (
-                <Input
-                  className="input-item"
-                  value={item.value}
-                  onChange={(e) => changeInput(e, item.id, 'value')}
-                  placeholder="请填写值"
-                />
-              )}
-              {['input'].includes(item.type) && (
-                <Input.Group compact className="input-item">
-                  <Select
-                    defaultValue="text"
-                    onChange={(e) => changeSelect(e, item.id, 'value1')}
-                  >
-                    <Option value="text">文本</Option>
-                    <Option value="password">密码</Option>
-                  </Select>
+                )}
+                {['screenshot'].includes(item.type) && (
                   <Input
-                    style={{ width: '60%' }}
-                    value={item.value}
-                    type={item.value1}
-                    onChange={(e) => changeInput(e, item.id, 'value')}
-                    placeholder="请填写值"
+                    className="input-item"
+                    value={item.target}
+                    onChange={(e) => changeInput(e, item.id, 'target')}
+                    placeholder="请输入存放文件的路径"
                   />
-                </Input.Group>
-              )}
-              {['wait'].includes(item.type) && (
-                <InputNumber
-                  className="input-item"
-                  value={item.value}
-                  onChange={(e) => changeInputNumber(e, item.id, 'value')}
-                  placeholder="请填写时间"
-                  addonAfter="ms"
-                />
-              )}
-              {['sLoop'].includes(item.type) && (
-                <InputNumber
-                  className="input-item"
-                  value={item.value}
-                  onChange={(e) => changeInputNumber(e, item.id, 'value')}
-                  placeholder="请填写次数"
-                  addonAfter="次"
-                />
-              )}
-              {['keyboard'].includes(item.type) && (
-                <>
-                  <Select
-                    className="select-item"
-                    showSearch
-                    placeholder="选择方式"
-                    optionFilterProp="children"
-                    value={item.target}
-                    onChange={(e) => changeSelect(e, item.id, 'target')}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                  >
-                    {pressTypes.map((k) => (
-                      <Option value={k} key={k}>
-                        {k}
-                      </Option>
-                    ))}
-                  </Select>
-                  <Select
-                    className="select-item"
-                    showSearch
-                    placeholder="选择按键"
-                    optionFilterProp="children"
-                    value={item.value}
-                    onChange={(e) => changeSelect(e, item.id, 'value')}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                  >
-                    {keyboards.map((k) => (
-                      <Option value={k} key={k}>
-                        {k}
-                      </Option>
-                    ))}
-                  </Select>
-                </>
-              )}
-              {['mouse'].includes(item.type) && (
-                <>
-                  <Select
-                    className="select-item"
-                    showSearch
-                    placeholder="选择方式"
-                    optionFilterProp="children"
-                    value={item.target}
-                    onChange={(e) => changeSelect(e, item.id, 'target')}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                  >
-                    {mouseTypes.map((k) => (
-                      <Option value={k} key={k}>
-                        {k}
-                      </Option>
-                    ))}
-                  </Select>
+                )}
+                {[
+                  'click',
+                  'dblclick',
+                  'input',
+                  'exist',
+                  'image',
+                  'text',
+                ].includes(item.type) && (
+                  <>
+                    <Input
+                      className="input-item"
+                      value={item.target}
+                      onChange={(e) => changeInput(e, item.id, 'target')}
+                      placeholder="请输入选择器"
+                    />
+                  </>
+                )}
+                {['image', 'text'].includes(item.type) && (
                   <Input
                     className="input-item"
                     value={item.value}
                     onChange={(e) => changeInput(e, item.id, 'value')}
-                    placeholder="请填写坐标,格式: 100,200"
+                    placeholder="请输入存放文件的路径"
                   />
-                </>
-              )}
+                )}
+                {['text'].includes(item.type) && (
+                  <Input
+                    style={{ marginTop: '10px' }}
+                    className="input-item"
+                    value={item.value2}
+                    onChange={(e) => changeInput(e, item.id, 'value2')}
+                    placeholder="请输入文件名"
+                  />
+                )}
+                {['image'].includes(item.type) && (
+                  <Input
+                    style={{ marginTop: '10px' }}
+                    className="input-item"
+                    value={item.value2}
+                    onChange={(e) => changeInput(e, item.id, 'value2')}
+                    placeholder="请输入名称所在的选择器"
+                  />
+                )}
+                {['js'].includes(item.type) && (
+                  <Input
+                    className="input-item"
+                    value={item.value}
+                    onChange={(e) => changeInput(e, item.id, 'value')}
+                    placeholder="请填写值"
+                  />
+                )}
+                {['input'].includes(item.type) && (
+                  <Input.Group compact className="input-item">
+                    <Select
+                      defaultValue="text"
+                      onChange={(e) => changeSelect(e, item.id, 'value1')}
+                    >
+                      <Option value="text">文本</Option>
+                      <Option value="password">密码</Option>
+                    </Select>
+                    <Input
+                      style={{ width: '60%' }}
+                      value={item.value}
+                      type={item.value1}
+                      onChange={(e) => changeInput(e, item.id, 'value')}
+                      placeholder="请填写值"
+                    />
+                  </Input.Group>
+                )}
+                {['wait'].includes(item.type) && (
+                  <InputNumber
+                    className="input-item"
+                    value={item.value}
+                    onChange={(e) => changeInputNumber(e, item.id, 'value')}
+                    placeholder="请填写时间"
+                    addonAfter="ms"
+                  />
+                )}
+                {['sLoop'].includes(item.type) && (
+                  <InputNumber
+                    className="input-item"
+                    value={item.value}
+                    onChange={(e) => changeInputNumber(e, item.id, 'value')}
+                    placeholder="请填写次数"
+                    addonAfter="次"
+                  />
+                )}
+                {['keyboard'].includes(item.type) && (
+                  <>
+                    <Select
+                      className="select-item"
+                      showSearch
+                      placeholder="选择方式"
+                      optionFilterProp="children"
+                      value={item.target}
+                      onChange={(e) => changeSelect(e, item.id, 'target')}
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      }
+                    >
+                      {pressTypes.map((k) => (
+                        <Option value={k} key={k}>
+                          {k}
+                        </Option>
+                      ))}
+                    </Select>
+                    <Select
+                      className="select-item"
+                      showSearch
+                      placeholder="选择按键"
+                      optionFilterProp="children"
+                      value={item.value}
+                      onChange={(e) => changeSelect(e, item.id, 'value')}
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      }
+                    >
+                      {keyboards.map((k) => (
+                        <Option value={k} key={k}>
+                          {k}
+                        </Option>
+                      ))}
+                    </Select>
+                  </>
+                )}
+                {['mouse'].includes(item.type) && (
+                  <>
+                    <Select
+                      className="select-item"
+                      showSearch
+                      placeholder="选择方式"
+                      optionFilterProp="children"
+                      value={item.target}
+                      onChange={(e) => changeSelect(e, item.id, 'target')}
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      }
+                    >
+                      {mouseTypes.map((k) => (
+                        <Option value={k} key={k}>
+                          {k}
+                        </Option>
+                      ))}
+                    </Select>
+                    <Input
+                      className="input-item"
+                      value={item.value}
+                      onChange={(e) => changeInput(e, item.id, 'value')}
+                      placeholder="请填写坐标,格式: 100,200"
+                    />
+                  </>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
       <Modal
-        title="获取selector"
+        title="获取选择器"
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
