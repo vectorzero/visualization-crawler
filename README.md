@@ -1,3 +1,5 @@
+![Alt](https://repobeats.axiom.co/api/embed/86dd67d3fee6e91669f88e18310a51ec6e9d7199.svg "Repobeats analytics image")
+
 ## Install
 
 Clone the repo and install dependencies:
