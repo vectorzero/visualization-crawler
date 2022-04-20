@@ -14,7 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 // import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { crawler } from './crawler'
+import crawler from './crawler';
 
 export default class AppUpdater {
   constructor() {
@@ -32,7 +32,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-crawler()
+crawler();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

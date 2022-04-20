@@ -4,10 +4,11 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import fs from 'fs';
 import { getRandom, handleFileName } from './util';
+
 const puppeteer = require('puppeteer-core');
 const findChrome = require('./find_chrome');
 
-export const crawler = function () {
+const crawler = () => {
   ipcMain.on('crawler', async (event, arg) => {
     // 外循环
     let lastArr: object[] = [];
@@ -132,23 +133,27 @@ export const crawler = function () {
           }`;
           const fileName = name ? `${dir ? `${dir}/` : ''}${name}` : fullName;
           const types = ['png', 'jpg', 'jpeg'];
-          let fileType: string = 'png';
+          let fileType = 'png';
           types.forEach((item: string) => {
             if (fileString.split('.')[1].includes(item)) {
               fileType = item;
             }
           });
           response.data.pipe(fs.createWriteStream(`${fileName}.${fileType}`));
+          return true;
         })
-        .catch((err: any) => {
-          // console.log('image', err);
+        .catch((err: string) => {
+          console.log('image', err);
         });
     };
 
     const base64ToImg = async (src: string, dir: string, name: string) => {
       const reg = /^data:image\/(.*?);base64,(.*)/;
       const result = src.match(reg);
-      const fileName = `${dir ? `${dir}/` : ''}${getRandom(16)}`;
+      const fullName = `${dir ? `${dir}/` : ''}${getRandom(16)}-${
+        fileString.split('.')[0]
+      }`;
+      const fileName = name ? `${dir ? `${dir}/` : ''}${name}` : fullName;
       const fileType = result[1];
       const data = Buffer.from(result[2], 'base64');
       fs.writeFileSync(`${fileName}.${fileType}`, data);
@@ -219,7 +224,7 @@ export const crawler = function () {
             id: randomStr,
             date: now,
           });
-          const texts = await page.evaluate((x: any) => {
+          const texts = await page.evaluate((x: object) => {
             const arr: string[] = [];
             const doms = document.querySelectorAll(x.target);
             [...doms].forEach((v: any) => {
@@ -248,7 +253,7 @@ export const crawler = function () {
             id: randomStr,
             date: now,
           });
-          const urls = await page.evaluate((x: any) => {
+          const urls = await page.evaluate((x: object) => {
             const arr: object[] = [];
             let textDoms: string[] = [];
             const urlDoms = [...document.querySelectorAll(x.target)];
@@ -323,7 +328,7 @@ export const crawler = function () {
               pointX - 15
             }px; border-radius: 50%;z-index: 9999;} .point${randomStr}::after{content: "";background: red; width: 2px; height: 2px; position: fixed; top: ${pointY}px; left: ${pointX}px;}'`;
           if (item.target === '按一下') {
-            await page.evaluate((x: any) => {
+            await page.evaluate((x: string) => {
               // eslint-disable-next-line no-eval
               eval(x);
               // eslint-disable-next-line no-template-curly-in-string
@@ -350,7 +355,7 @@ export const crawler = function () {
           id: randomStr,
           date: now,
         });
-        await page.evaluate((x: any) => {
+        await page.evaluate((x: string) => {
           // eslint-disable-next-line no-eval
           eval(x);
         }, jsCode);
@@ -362,7 +367,7 @@ export const crawler = function () {
           id: randomStr,
           date: now,
         });
-        await page.evaluate((x: any) => {
+        await page.evaluate((x: string) => {
           // eslint-disable-next-line no-eval
           eval(x);
           // eslint-disable-next-line no-template-curly-in-string
@@ -406,3 +411,5 @@ export const crawler = function () {
     // await browser.close()
   });
 };
+
+export default crawler;
