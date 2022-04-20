@@ -242,7 +242,7 @@ const crawler = () => {
               type: 'info',
               msg: `【爬取文本】文本保存至 ${item.value} 文件夹中`,
               id: randomStr + 1,
-              date: now + 1,
+              date: dayjs().format('MM-DD HH:mm:ss'),
             });
           }
         }
@@ -361,6 +361,9 @@ const crawler = () => {
         }, jsCode);
       }
       if (item.type === 'point') {
+        const jsCode =
+          // eslint-disable-next-line no-template-curly-in-string
+          'window.addEventListener("click",function(e){alert(`${e.clientX},${e.clientY}`)})';
         event.reply('crawler', {
           type: 'info',
           msg: `【坐标获取】`,
@@ -370,8 +373,7 @@ const crawler = () => {
         await page.evaluate((x: string) => {
           // eslint-disable-next-line no-eval
           eval(x);
-          // eslint-disable-next-line no-template-curly-in-string
-        }, 'window.addEventListener("click",function(e){alert(`${e.clientX},${e.clientY}`)})');
+        }, jsCode);
       }
       if (item.type === 'screenshot') {
         const filePath = `${
