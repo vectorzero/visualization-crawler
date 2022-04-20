@@ -42,7 +42,7 @@ const crawler = () => {
             type: 'error',
             msg: `【错误】只允许存在一个开始循环和结束循环`,
             id: getRandom(16),
-            date: dayjs().format('MM-DD HH:mm:ss'),
+            date: dayjs().format('HH:mm:ss'),
           });
           return;
         }
@@ -55,11 +55,10 @@ const crawler = () => {
         type: 'error',
         msg: `【错误】步骤不能为空`,
         id: getRandom(16),
-        date: dayjs().format('MM-DD HH:mm:ss'),
+        date: dayjs().format('HH:mm:ss'),
       });
       return;
     }
-    // console.log(screen.getCursorScreenPoint());
     const findChromePath = await findChrome({});
     const { executablePath } = findChromePath;
     const launchConfig = {
@@ -91,12 +90,11 @@ const crawler = () => {
           await callback(array[index], index, array);
         } catch (e: any) {
           const randomStr = getRandom(16);
-          const now = dayjs().format('MM-DD HH:mm:ss');
           event.reply('crawler', {
             type: 'error',
             msg: `【错误】${e.message}`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
         }
       }
@@ -150,9 +148,7 @@ const crawler = () => {
     const base64ToImg = async (src: string, dir: string, name: string) => {
       const reg = /^data:image\/(.*?);base64,(.*)/;
       const result = src.match(reg);
-      const fullName = `${dir ? `${dir}/` : ''}${getRandom(16)}-${
-        fileString.split('.')[0]
-      }`;
+      const fullName = `${dir ? `${dir}/` : ''}${getRandom(16)}`;
       const fileName = name ? `${dir ? `${dir}/` : ''}${name}` : fullName;
       const fileType = result[1];
       const data = Buffer.from(result[2], 'base64');
@@ -169,7 +165,6 @@ const crawler = () => {
 
     asyncForEach(lastArr, async (item: any) => {
       const randomStr = getRandom(16);
-      const now = dayjs().format('MM-DD HH:mm:ss');
       if (
         item.type !== 'point' &&
         item.type !== 'jump' &&
@@ -186,7 +181,7 @@ const crawler = () => {
             type: 'info',
             msg: `【存在】${item.target}`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
         }
         if (item.type === 'click') {
@@ -194,7 +189,7 @@ const crawler = () => {
             type: 'info',
             msg: `【单击】${item.target}`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
           await ele.click();
         }
@@ -203,7 +198,7 @@ const crawler = () => {
             type: 'info',
             msg: `【双击】${item.target}`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
           await ele.click({ clickCount: 2 });
         }
@@ -213,7 +208,7 @@ const crawler = () => {
             type: 'info',
             msg: `【输入】${item.target} -> ${typeValue}`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
           await ele.type(item.value);
         }
@@ -222,7 +217,7 @@ const crawler = () => {
             type: 'info',
             msg: `【爬取文本】正在爬取文本...`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
           const texts = await page.evaluate((x: object) => {
             const arr: string[] = [];
@@ -251,7 +246,7 @@ const crawler = () => {
             type: 'info',
             msg: `【爬取图片】正在爬取图片...`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
           const urls = await page.evaluate((x: object) => {
             const arr: object[] = [];
@@ -284,7 +279,7 @@ const crawler = () => {
           type: 'info',
           msg: `【按键】${item.target}${item.value}`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         const keyMap = {
           持续按着: 'down',
@@ -299,7 +294,7 @@ const crawler = () => {
             type: 'error',
             msg: `【错误】坐标值异常`,
             id: randomStr,
-            date: now,
+            date: dayjs().format('HH:mm:ss'),
           });
           return;
         }
@@ -310,7 +305,7 @@ const crawler = () => {
           type: 'info',
           msg: `【鼠标】${item.target}${item.value}`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         const keyMap = {
           持续按着: 'down',
@@ -343,7 +338,7 @@ const crawler = () => {
           type: 'info',
           msg: `【跳转】${item.target}`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         await page.goto(item.target, { waitUntil: 'networkidle2' });
       }
@@ -353,7 +348,7 @@ const crawler = () => {
           type: 'info',
           msg: `【运行js】${jsCode}`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         await page.evaluate((x: string) => {
           // eslint-disable-next-line no-eval
@@ -368,7 +363,7 @@ const crawler = () => {
           type: 'info',
           msg: `【坐标获取】`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         await page.evaluate((x: string) => {
           // eslint-disable-next-line no-eval
@@ -383,7 +378,7 @@ const crawler = () => {
           type: 'info',
           msg: `【截图】${filePath}`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         await autoScroll(page);
         await page.screenshot({
@@ -396,7 +391,7 @@ const crawler = () => {
           type: 'info',
           msg: `【等待】${item.value}ms`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         await page.waitForTimeout(item.value);
       }
@@ -405,12 +400,12 @@ const crawler = () => {
           type: 'info',
           msg: `【刷新页面】`,
           id: randomStr,
-          date: now,
+          date: dayjs().format('HH:mm:ss'),
         });
         await page.reload();
       }
     });
-    // await browser.close()
+    // await browser.close();
   });
 };
 

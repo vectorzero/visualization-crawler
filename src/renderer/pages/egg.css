@@ -1,0 +1,18 @@
+
+.eggo {
+  height: 100px;
+}
+.eggo__lines {
+  -webkit-animation: code 1s infinite linear;
+          animation: code 1s infinite linear;
+}
+@-webkit-keyframes code {
+  to {
+    transform: translate(0, -125px);
+  }
+}
+@keyframes code {
+  to {
+    transform: translate(0, -125px);
+  }
+}

@@ -116,7 +116,7 @@
 .log-wrap {
   position: absolute;
   left: 50%;
-  top: 10%;
+  top: 28%;
   margin-left: -200px;
   display: flex;
   flex-direction: column;
@@ -124,8 +124,10 @@
   height: 200px;
   padding: 10px 5px 10px 10px;
   background: #052e52;
-  box-shadow: 0 20px 68px rgb(0 0 0 / 55%);
+  /* background: #3A3A3A; */
+  box-shadow: 0 30px 88px rgb(0 0 0 / 55%);
   font-size: 12px;
+  border-radius: 8px;
 }
 
 .log-title {
@@ -142,21 +144,21 @@
 .close-btn {
   position: absolute;
   top: 0;
-  right: 0;
-  color: #FF5F56 !important;
+  right: 6px;
+  color: white !important;
 }
 
 .log-item {
   display: block;
   margin-bottom: 5px;
-  color: white;
+  color: #E3A786;
 }
 
 .text-date {
   margin-right: 5px;
-  color: #ffee80;
+  color: #EFEFAE;
 }
 
 .text-warn {
-  color: #FF5F56;
+  color: #d75f5f;
 }

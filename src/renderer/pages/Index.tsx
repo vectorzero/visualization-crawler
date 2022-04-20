@@ -16,6 +16,7 @@ import {
 import step1 from '../assets/tips/step1.png';
 import step2 from '../assets/tips/step2.png';
 import keyboards from './keyboard';
+import Egg from './egg';
 import './index.css';
 
 const { ipcRenderer } = window.electron;
@@ -449,6 +450,7 @@ export default function Index() {
           );
         })}
       </div>
+      <Egg></Egg>
       <Modal
         title="获取选择器"
         visible={isModalVisible}
@@ -473,7 +475,7 @@ export default function Index() {
             {logs.map((item) => {
               return (
                 <div className="log-item" key={item.id}>
-                  <span className="text-date">{item.date}</span>
+                  <span className="text-date">[{item.date}]</span>
                   <span
                     className={`${item.type === 'error' ? 'text-warn' : ''}`}
                   >
